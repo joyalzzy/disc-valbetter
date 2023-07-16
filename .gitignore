@@ -1,0 +1,12 @@
+# files
+.vscode
+.env
+.env.local
+.cache
+package-lock.json
+yarn.lock
+
+# folders
+build
+node_modules
+src/valorant/_tests.ts
