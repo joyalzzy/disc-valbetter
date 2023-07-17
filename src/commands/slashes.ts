@@ -88,6 +88,6 @@ export class getKillsForLastMatch {
         return getPlayerKillsfromMatchResposne(_.data, puuid);
       });
 
-    await interaction.channel?.send(String(kills))
+    await interaction.reply(String(kills))
   }
 }
