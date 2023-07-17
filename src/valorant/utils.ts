@@ -1,4 +1,4 @@
-import { partyChatInfoEndpoint, stringBooleanSchema } from "valorant-api-types";
+import { MatchDetailsResponse, partyChatInfoEndpoint, stringBooleanSchema } from "valorant-api-types";
 import { Auth } from "./auth";
 import { Party } from "./party";
 import { AxiosInstance } from "axios";
@@ -17,4 +17,8 @@ export async function getPlayerPuuid(ax: AxiosInstance, user: ValUser, name: str
         // console.log(res.data)
         return res.data.Invites![0]!['Subject'];
     })
+}
+
+export async function getPlayerKillsfromMatchResposne(match : MatchDetailsResponse, puuid : string){
+    return match.players.find(x => x.subject == puuid)?.stats?.kills
 }
