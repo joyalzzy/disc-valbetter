@@ -1,7 +1,7 @@
-import { PermissionsBitField, Utils } from "discord.js";
-import { ValUser } from "./user";
-import { getPlayerPuuid } from "./utils";
-import { Auth } from "./auth";
+// import { PermissionsBitField, Utils } from "discord.js";
+// import { ValUser } from "./user";
+// import { getPlayerPuuid } from "./utils";
+// import { Auth } from "./auth";
 import { Cache } from "file-system-cache";
 import 'dotenv/config';
 import { json } from "stream/consumers";
