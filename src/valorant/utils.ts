@@ -9,7 +9,7 @@ import { pid } from "process";
 export async function getPlayerPuuid(ax: AxiosInstance, user: ValUser, name: string, tag: string) {
     const party = new Party();
     let pid = '';
-    await Promise.resolve(party.getPlayerParty(ax, user.auth.entitlements_token, user.auth.access_token, user.puuid)).then((res) => {
+    await Promise.resolve(party.getPlayerParty(ax, user.entitlements_token, user.auth.access_token, user.puuid)).then((res) => {
         pid = res.data.CurrentPartyID
     })
     // console.log(pid)

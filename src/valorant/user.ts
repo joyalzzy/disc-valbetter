@@ -1,34 +1,32 @@
-import axios, { AxiosRequestHeaders, AxiosResponse } from "axios";
-import { Auth } from "./auth";
+import axios, { AxiosError, AxiosRequestHeaders, AxiosResponse } from "axios";
+// import { Auth } from "./auth";
 import { PlayerInfoResponse, StorefrontResponse, CurrentGameMatchResponse } from "valorant-api-types";
+import { Handler } from "./valhandler";
 
 export namespace ValUser {
 
 }
-export class ValUser extends Auth{
-    headers: {}
+export class ValUser extends Handler{
+    // headers: {}
+    user: string
     puuid : any 
     async createVal(user: string, pass: string) {
-        await this.auth(user, pass)
-        this.headers = {
-            "X-Riot-Entitlements-JWT": this.entitlements_token,
-            "Authorization": `Bearer ${this.access_token}`,
-            "X-Riot-Token": process.env.RIOT_KEY
-        }
+        this.user = user
+        // this.pass = pass
+        await this.setAuthedHeaders(user, pass)
         await this.setPuuid()
     }
     async setPuuid() {
-        await axios.get('https://auth.riotgames.com/userinfo',  {
-            headers: {
-                Authorization: `Bearer ${this.auth.access_token}`
-            }
-        }).then((res : AxiosResponse<PlayerInfoResponse>) => {
+        console.log(this.headers)
+        await this.sendGetRequest('https://auth.riotgames.com/userinfo').then((res : AxiosResponse<PlayerInfoResponse>) => {
             // console.log(res)
             this.puuid = res.data.sub
+            // console.log(res.data)
+            // this.cache.setPuuid(this.user, )res.data.acct.
             // console.log(this.puuid)
-        })
+        }).catch((err: AxiosError)=> console.log(err.config?.headers.toJSON()))
     } 
     async getCurrentMatch() : Promise<AxiosResponse<CurrentGameMatchResponse>> {
-        return Promise.resolve(await axios.get(`https://pd.ap.a.pvp.net/store/v2/storefront/${this.puuid}`)) 
+        return this.sendGetRequest(`https://pd.ap.a.pvp.net/store/v2/storefront/${this.puuid}`) 
     }
 }
