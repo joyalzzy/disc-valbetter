@@ -11,6 +11,7 @@ import {
 } from "valorant-api-types";
 import axios, { Axios, AxiosResponse } from "axios";
 import { ValCache } from "./cache";
+import { bot } from "../main";
 
 export class Session {
   protected cache: ValCache;
@@ -45,6 +46,8 @@ export class Session {
     }).catch(async () => {return (await axios.get(`http://api.henrikdev.xyz/valorant/v1/account/${name}/${tag}`)).data.data.puuid}).then(_ => {
       this.cache.setPuuid(name, tag, _)
       return _
+    }).catch(_ => {
+      throw Error('Not found')
     });
   }
 

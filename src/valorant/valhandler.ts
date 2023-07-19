@@ -44,6 +44,12 @@ export class Handler {
         // withCredentials: true,
       )
     );
+    this.ax.interceptors.response.use((res) => {
+      console.log(res.status)
+      return res
+    }, (err) => {
+      return Promise.reject(err.message)
+    })
   }
   async sendPostRequest(url: string, data: {}, headers?: {}) {
     return await this.ax.post(url, data, {

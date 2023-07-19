@@ -53,14 +53,18 @@ export class getKillsForLastMatch {
     username: string,
     interaction: CommandInteraction
   ) {
+    await interaction.deferReply()
     const args = username.split("#");
+    try {
     await valorant.getPlayerPuuid(args[0], args[1])
       .then((_) => {
         return valorant.getUserLastMatchKills(_);
       })
       .then((_) => {
-        return interaction.reply(String(_));
-      });
+        return interaction.followUp(String(_));
+      });} catch{ 
+        return interaction.followUp('nah')
+      }
   }
   @Slash({
     description: "idk",

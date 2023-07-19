@@ -38,7 +38,7 @@ export class ValCache {
   }
   async getPuuid(user: string, tag: string): Promise<string> {
     return await this.cache.get("puuids").then((res) => {
-      console.log(res);
+      // console.log(res);
       return JSON.parse(res)[`${user}#${tag}`] ?? undefined;
     });
     // ).catch(err => {
