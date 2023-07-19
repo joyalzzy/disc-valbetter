@@ -3,7 +3,7 @@ import { CommandInteraction, User } from "discord.js";
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import { Discord, MetadataStorage, Slash, SlashOption } from "discordx";
 import { ValCache } from "../valorant/cache";
-import { ValUser } from "../valorant/user";
+import { ValUser } from "../valorant/client";
 import { Match } from "../valorant/match";
 import { getPlayerKillsfromMatchResposne } from "../valorant/utils";
 

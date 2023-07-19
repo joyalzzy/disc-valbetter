@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosRequestHeaders, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse } from "axios";
 // import { Auth } from "./auth";
 import { PlayerInfoResponse, StorefrontResponse, CurrentGameMatchResponse } from "valorant-api-types";
 import { Handler } from "./valhandler";
@@ -6,11 +6,15 @@ import { Handler } from "./valhandler";
 export namespace ValUser {
 
 }
-export class ValUser extends Handler{
+export class Client extends Handler{
+    entitlements_token(ax: AxiosInstance, entitlements_token: any, access_token: any, puuid: any): Promise<AxiosResponse<{ Subject: string; Version: number; Invites: null; Requests: { ID: string; PartyID: string; RequestedBySubject: string; Subjects: string[]; CreatedAt: string; RefreshedAt: string; ExpiresIn: number; }[]; CurrentPartyID: string; PlatformInfo: { ...; }; }, any>> {
+        throw new Error("Method not implemented.");
+    }
     // headers: {}
     user: string
     puuid : any 
-    async createVal(user: string, pass: string) {
+    auth: any;
+    async init(user: string, pass: string) {
         this.user = user
         // this.pass = pass
         await this.setAuthedHeaders(user, pass)
@@ -26,7 +30,5 @@ export class ValUser extends Handler{
             // console.log(this.puuid)
         }).catch((err: AxiosError)=> console.log(err.config?.headers.toJSON()))
     } 
-    async getCurrentMatch() : Promise<AxiosResponse<CurrentGameMatchResponse>> {
-        return this.sendGetRequest(`https://pd.ap.a.pvp.net/store/v2/storefront/${this.puuid}`) 
-    }
+    
 }
