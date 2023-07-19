@@ -12,8 +12,51 @@ import {
 import axios, { Axios, AxiosResponse } from "axios";
 import { ValCache } from "./cache";
 import { bot } from "../main";
+import { Embed, EmbedBuilder } from "discord.js";
 
 export class Session {
+  async parsePersonalMatchInfotoEmbed(
+    name: string,
+    tag: string,
+    puuid: string,
+    res: AxiosResponse<MatchDetailsResponse>
+  ) {
+    let k = await this.getUserLastMatchKD(puuid)
+    let player_dat = res.data.players.find((x) => x.subject == puuid)
+    let kd = Math.round((player_dat?.stats?.kills ?? 1) / (player_dat?.stats?.deaths ?? 1) * 100)/100
+    let winsbyteam = res.data.roundResults?.filter((x) => x.winningTeam == player_dat?.teamId).length ?? 0
+    return new EmbedBuilder()
+      .setTitle(`For ${name}#${tag}`)
+      .setFooter({ text: kd > 1.5 ? "woah" : "uh" })
+      .addFields(
+        { name: 'Score', value: `${winsbyteam} -  ${(res.data.roundResults?.length ?? 0 )- winsbyteam}`},
+        { name: 'KD', value: `${String(kd)}, ${player_dat?.stats?.kills}/${player_dat?.stats?.deaths}/${player_dat?.stats?.assists}`},
+        { name: 'Mode', value: res.data.matchInfo.gameMode},
+        { name: 'Defusals - Plants', value: `${res.data.roundResults?.filter((x) => x.bombDefuser == puuid).length } - ${res.data.roundResults?.filter((x) => x.bombPlanter == puuid).length }`},
+        { name: 'Ults', value: String(player_dat?.stats?.abilityCasts?.ultimateCasts)}
+      )
+      .setImage('https://cdn.discordapp.com/attachments/815950568526315554/820273309433462794/unknown.png')
+  }
+  async getUserLastMatchKD(puuid: string) {
+    return await this.getLastMatchID(puuid)
+      .then((_) => {
+        return this.getMatchInfo(_);
+      })
+      .then((_: AxiosResponse<MatchDetailsResponse>) => {
+        return this.getPlayerDetailsFromMatch(_.data, puuid);
+      })
+      .then((_) => {
+        return _?.kills && _?.deaths
+          ? (() => {
+              return ((_?.kills ?? 2) / (_?.deaths ?? 2)).toFixed(3);
+            })()
+          : (() => {
+              return "fuck";
+            })();
+      });
+
+    // throw new Error("Method not implemented.");
+  }
   protected cache: ValCache;
   protected client: Client;
   async run() {
@@ -32,30 +75,37 @@ export class Session {
       return id
         ? id
         : (async () => {
-            const res = await this.getPlayerParty(this.client.puuid);
-            const res_1 = await this.sendInvite(
-              name,
-              tag,
-              res.data.CurrentPartyID
-            );
-            const id = <string>res_1.data.Invites![0]["Subject"];
-            console.log(id)
-            this.cache.setPuuid(name, tag, id);
-            return id;
-          })();
-    }).catch(async () => {return (await axios.get(`http://api.henrikdev.xyz/valorant/v1/account/${name}/${tag}`)).data.data.puuid}).then(_ => {
-      this.cache.setPuuid(name, tag, _)
-      return _
-    }).catch(_ => {
-      throw Error('Not found')
+            return (
+              await axios.get(
+                `http://api.henrikdev.xyz/valorant/v1/account/${name}/${tag}`
+              )
+            ).data.data.puuid;
+          })().then((_) => {
+            this.cache.setPuuid(name, tag, _);
+            return _;
+          });
+      // : (async () => {
+      // const res = await this.getPlayerParty(this.client.puuid);
+      // const res_1 = await this.sendInvite(
+      // name,
+      // tag,
+      // res.data.CurrentPartyID
+      // );
+      // const id = <string>res_1.data.Invites![0]["Subject"];
+      // console.log(id)
+      // this.cache.setPuuid(name, tag, id);
+      // return id;
+      // })();
+      // }).catch(async () => {return (await axios.get(`http://api.henrikdev.xyz/valorant/v1/account/${name}/${tag}`)).data.data.puuid}).then(_ => {
+      // this.cache.setPuuid(name, tag, _)
+      // return _
+      // }).catch(_ => {
+      // throw Error('Not found')
+      // });
     });
   }
-
-  async getPlayerKillsfromMatchResposne(
-    match: MatchDetailsResponse,
-    puuid: string
-  ) {
-    return match.players.find((x) => x.subject == puuid)?.stats?.kills;
+  async getPlayerDetailsFromMatch(match: MatchDetailsResponse, puuid: string) {
+    return match.players.find((x) => x.subject == puuid)?.stats;
   }
 
   async getCurrentMatch(
@@ -81,7 +131,10 @@ export class Session {
         return this.getMatchInfo(_);
       })
       .then((_) => {
-        return this.getPlayerKillsfromMatchResposne(_.data, puuid);
+        return this.getPlayerDetailsFromMatch(_.data, puuid);
+      })
+      .then((_) => {
+        return _?.kills;
       });
     return kills;
   }
@@ -112,7 +165,8 @@ export class Session {
   ): Promise<AxiosResponse<PartyInviteResponse>> {
     return Promise.resolve(
       await this.client.sendPostRequest(
-        `https://glz-${this.client.region}-1.${this.client.shard}.a.pvp.net/parties/v1/parties/${party_id}/invites/name/${name}/tag/${tag}`, {},
+        `https://glz-${this.client.region}-1.${this.client.shard}.a.pvp.net/parties/v1/parties/${party_id}/invites/name/${name}/tag/${tag}`,
+        {},
         this.client.hversion
       )
     );

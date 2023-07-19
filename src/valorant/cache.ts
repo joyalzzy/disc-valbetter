@@ -28,7 +28,7 @@ export class ValCache {
         // console.log(res)
         let x = JSON.parse(res ?? "{}");
         // console.log(x)
-        x[`${user}#${tag}`] = puuid;
+        x[`${user.toLowerCase()}#${tag.toLowerCase()}`] = puuid;
         // console.log(x)
         return this.cache.set("puuids", JSON.stringify(x));
       })
@@ -39,7 +39,9 @@ export class ValCache {
   async getPuuid(user: string, tag: string): Promise<string> {
     return await this.cache.get("puuids").then((res) => {
       // console.log(res);
-      return JSON.parse(res)[`${user}#${tag}`] ?? undefined;
+      try {return JSON.parse(res)[`${user.toLowerCase()}#${tag.toLowerCase()}`] } catch {
+        return undefined
+      };
     });
     // ).catch(err => {
     // console.log(err)

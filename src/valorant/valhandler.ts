@@ -45,10 +45,10 @@ export class Handler {
       )
     );
     this.ax.interceptors.response.use((res) => {
-      console.log(res.status)
+      console.log(`${res.status} ${res.config.url}`)
       return res
-    }, (err) => {
-      return Promise.reject(err.message)
+    }, (err : Error) => {
+      return Promise.reject(`${err.message} ${err.name}`)
     })
   }
   async sendPostRequest(url: string, data: {}, headers?: {}) {

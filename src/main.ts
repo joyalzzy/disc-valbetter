@@ -1,10 +1,11 @@
 import { dirname, importx } from "@discordx/importer";
 import { Koa } from "@discordx/koa";
-import type { Interaction, Message } from "discord.js";
-import { IntentsBitField } from "discord.js";
+import type { Interaction, Message, TextChannel } from "discord.js";
+import { IntentsBitField, MessagePayload, messageLink } from "discord.js";
 import { Client } from "discordx";
 import 'dotenv/config'
 import { Session } from "./valorant/session";
+import { error } from "console";
 
 export const bot = new Client({
   // To use only guild command
@@ -56,6 +57,13 @@ bot.on("interactionCreate", (interaction: Interaction) => {
 bot.on("messageCreate", (message: Message) => {
   bot.executeCommand(message);
 });
+
+bot.on("error", (err : Error) => {
+  console.log((<TextChannel>Array.from(bot.channels.cache.values())[-1]).send(err.message))
+})
+process.on("uncaughtException", (err: Error)=> {
+  console.log(err)
+})
 
 async function run() {
   // The following syntax should be used in the commonjs environment
