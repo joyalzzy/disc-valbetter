@@ -8,6 +8,7 @@ import {
   MatchDetailsResponse,
   PartyInviteResponse,
   PartyPlayerResponse,
+  chatSessionEndpoint,
 } from "valorant-api-types";
 import axios, { Axios, AxiosResponse } from "axios";
 import { ValCache } from "./cache";
@@ -21,21 +22,75 @@ export class Session {
     puuid: string,
     res: AxiosResponse<MatchDetailsResponse>
   ) {
-    let k = await this.getUserLastMatchKD(puuid)
-    let player_dat = res.data.players.find((x) => x.subject == puuid)
-    let kd = Math.round((player_dat?.stats?.kills ?? 1) / (player_dat?.stats?.deaths ?? 1) * 100)/100
-    let winsbyteam = res.data.roundResults?.filter((x) => x.winningTeam == player_dat?.teamId).length ?? 0
+    // let k = await this.getUserLastMatchKD(puuid)
+    const attackfrombehind = () => {};
+    let player_dat = res.data.players.find((x) => x.subject == puuid);
+    let kd =
+      Math.round(
+        ((player_dat?.stats?.kills ?? 1) / (player_dat?.stats?.deaths ?? 1)) *
+          100
+      ) / 100;
+    let winsbyteam =
+      res.data.roundResults?.filter((x) => x.winningTeam == player_dat?.teamId)
+        .length ?? 0;
+    const isfair = (x : number, y : number) => { (3.14 - (Math.abs(x - y)) < 1.39) ?? false}  
+    let fair_kills = res.data.kills
+      ?.filter((x) => x.killer == puuid)
+      .map((x) => {
+        // console.log(x.playerLocations)
+        let victim_view =
+          x.playerLocations.find((y) => y.subject == x.victim)?.viewRadians ??
+          0;
+        let player_view = x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ?? 0;
+       
+        return isfair(victim_view, player_view);
+      }).filter(Boolean).length;
+    let fair_deaths = res.data.kills
+      ?.filter((x) => x.victim == puuid)
+      .map((x) => {
+        let victim_view =
+          x.playerLocations.find((y) => y.subject == puuid)?.viewRadians ??
+          0;
+        let player_view =
+          x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ?? 0;
+        console.log(`views ${victim_view} ${player_view}`)
+        return isfair(victim_view, player_view);
+      }).filter(Boolean).length;
     return new EmbedBuilder()
       .setTitle(`For ${name}#${tag}`)
       .setFooter({ text: kd > 1.5 ? "woah" : "uh" })
       .addFields(
-        { name: 'Score', value: `${winsbyteam} -  ${(res.data.roundResults?.length ?? 0 )- winsbyteam}`},
-        { name: 'KD', value: `${String(kd)}, ${player_dat?.stats?.kills}/${player_dat?.stats?.deaths}/${player_dat?.stats?.assists}`},
-        { name: 'Mode', value: res.data.matchInfo.gameMode},
-        { name: 'Defusals - Plants', value: `${res.data.roundResults?.filter((x) => x.bombDefuser == puuid).length } - ${res.data.roundResults?.filter((x) => x.bombPlanter == puuid).length }`},
-        { name: 'Ults', value: String(player_dat?.stats?.abilityCasts?.ultimateCasts)}
+        {
+          name: "Score",
+          value: `${winsbyteam} -  ${
+            (res.data.roundResults?.length ?? 0) - winsbyteam
+          }`,
+        },
+        {
+          name: "KD",
+          value: `${String(kd)}, ${player_dat?.stats?.kills}/${
+            player_dat?.stats?.deaths
+          }/${player_dat?.stats?.assists}`,
+        },
+        { name: "Mode", value: res.data.matchInfo.gameMode },
+        {
+          name: "Defusals - Plants",
+          value: `${
+            res.data.roundResults?.filter((x) => x.bombDefuser == puuid).length
+          } - ${
+            res.data.roundResults?.filter((x) => x.bombPlanter == puuid).length
+          }`,
+        },
+        {
+          name: "Ults",
+          value: String(player_dat?.stats?.abilityCasts?.ultimateCasts),
+        },
+        { name: "Fair kills - death", value: `${fair_kills} - ${fair_deaths}`}
       )
-      .setImage('https://cdn.discordapp.com/attachments/815950568526315554/820273309433462794/unknown.png')
+      .setImage(() => {
+        return ""
+      }
+      );
   }
   async getUserLastMatchKD(puuid: string) {
     return await this.getLastMatchID(puuid)
