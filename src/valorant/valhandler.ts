@@ -17,9 +17,8 @@ export namespace Handler {
 }
 export class Handler {
   public headers: {};
-  private version: string;
-  ax: AxiosInstance;
-  cache: ValCache;
+  public hversion: {};
+  protected ax: AxiosInstance;
   constructor() {
     this.headers = {
       //      "Access-Control-Allow-Origin": "*",
@@ -33,31 +32,32 @@ export class Handler {
         {
           jar: new CookieJar(),
           baseURL: "",
-          headers: {
-            //      "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
-            //          "Content-Type": "application/json",
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
-            // "X-Riot-Token": process.env.RIOT_KEY,
-          },
+          // headers: {
+          //      "Access-Control-Allow-Origin": "*",
+          // "Content-Type": "application/json",
+          //          "Content-Type": "application/json",
+          // "User-Agent":
+          // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
+          // "X-Riot-Token": process.env.RIOT_KEY,
+          // },
         }
         // withCredentials: true,
       )
     );
   }
-  async sendPostRequest(url: string, headers = this.headers, data: {}) {
-    return await this.ax.post(url, data, { headers: headers });
-  }
-  async sendGetRequest(url: string, headers = this.headers) {
-    console.log(headers);
-    return await this.ax.get(url, {
-      headers: headers,
+  async sendPostRequest(url: string, data: {}, headers?: {}) {
+    return await this.ax.post(url, data, {
+      headers: { ...headers, ...this.headers },
     });
   }
-  async sendPutRequest(url: string, headers = this.headers, data: {}) {
+  async sendGetRequest(url: string, headers?: {}) {
+    return await this.ax.get(url, {
+      headers: { ...headers, ...this.headers },
+    });
+  }
+  async sendPutRequest(url: string, data: {}, headers?: {}) {
     return await this.ax.put(url, data, {
-      headers: headers,
+      headers: { ...headers, ...this.headers },
     });
   }
   async setAuthedHeaders(user: string, pass: string) {
@@ -65,7 +65,7 @@ export class Handler {
     // console.log(this.headers);
     await this.sendPostRequest(
       "https://auth.riotgames.com/api/v1/authorization",
-      {},
+      // this.headers,
       {
         client_id: "play-valorant-web-prod",
         nonce: "1",
@@ -77,7 +77,7 @@ export class Handler {
       .then((_) => {
         return this.sendPutRequest(
           "https://auth.riotgames.com/api/v1/authorization",
-          this.headers,
+          // this.headers,
           {
             type: "auth",
             username: user,
@@ -92,13 +92,13 @@ export class Handler {
         this.headers = {
           ...this.headers,
           ...{
-            Authorization: `Bearer ${String(urlSearch.get("#access_token"))}`,
+            Authorization: `Bearer ${urlSearch.get("#access_token")}`,
           },
         };
 
         return this.sendPostRequest(
           "https://entitlements.auth.riotgames.com/api/token/v1",
-          this.headers,
+          // this.headers,
           {}
         );
         // console.log(_.data)

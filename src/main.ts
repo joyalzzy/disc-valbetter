@@ -4,6 +4,7 @@ import type { Interaction, Message } from "discord.js";
 import { IntentsBitField } from "discord.js";
 import { Client } from "discordx";
 import 'dotenv/config'
+import { Session } from "./valorant/session";
 
 export const bot = new Client({
   // To use only guild command
@@ -27,6 +28,8 @@ export const bot = new Client({
     prefix: ".",
   },
 });
+export const valorant = new Session;
+valorant.run()
 
 bot.once("ready", async () => {
   // Make sure all guilds are cached

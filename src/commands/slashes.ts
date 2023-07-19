@@ -1,11 +1,8 @@
 import { Pagination } from "@discordx/pagination";
-import { CommandInteraction, User } from "discord.js";
+import { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import { Discord, MetadataStorage, Slash, SlashOption } from "discordx";
-import { ValCache } from "../valorant/cache";
-import { ValUser } from "../valorant/client";
-import { Match } from "../valorant/match";
-import { getPlayerKillsfromMatchResposne } from "../valorant/utils";
+import { valorant } from "../main";
 
 @Discord()
 export class AllCommands {
@@ -56,38 +53,18 @@ export class getKillsForLastMatch {
     username: string,
     interaction: CommandInteraction
   ) {
-    const user = new ValUser();
-    const cache = new ValCache();
-
-    await cache.ready
+    const args = username.split("#");
+    await valorant.getPlayerPuuid(args[0], args[1])
       .then((_) => {
-        return cache.setPuuid(
-          "",
-          "",
-          ""
-        );
-      }).then(() => {
-        return cache.getPuuid("", "");
+        return valorant.getUserLastMatchKills(_);
       })
       .then((_) => {
-        console.log(_);
-        return user.createVal(
-          process.env.VAL_USER || "",
-          process.env.VAL_PASS || ""
-        );
+        return interaction.reply(String(_));
       });
-    const match = new Match();
-    
-    const puuid = await cache.getPuuid(...(username.split('#') as [string, string]));
-    const kills = await match
-      .getLastMatchID(user.auth.ax, puuid, user.auth)
-      .then((_) => {
-        return match.getMatchInfo(user.auth.ax, user.auth, _);
-      })
-      .then((_) => {
-        return getPlayerKillsfromMatchResposne(_.data, puuid);
-      });
-
-    await interaction.reply(String(kills))
   }
+  @Slash({
+    description: "idk",
+    name: "lastmatch"
+  })
+  async thing () {}
 }
