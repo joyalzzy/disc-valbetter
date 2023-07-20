@@ -1,11 +1,10 @@
 import { dirname, importx } from "@discordx/importer";
 import { Koa } from "@discordx/koa";
-import type { Interaction, Message, TextChannel } from "discord.js";
-import { IntentsBitField, MessagePayload, messageLink } from "discord.js";
+import type { Interaction, Message } from "discord.js";
+import { IntentsBitField } from "discord.js";
 import { Client } from "discordx";
-import 'dotenv/config'
+import 'dotenv/config';
 import { Session } from "./valorant/session";
-import { error } from "console";
 
 export const bot = new Client({
   // To use only guild command
@@ -34,7 +33,8 @@ valorant.run()
 
 bot.once("ready", async () => {
   // Make sure all guilds are cached
-  // await bot.guilds.fetch();
+  await bot.clearApplicationCommands()
+  await bot.guilds.fetch();
 
   // Synchronize applications commands with Discord
   await bot.initApplicationCommands();
@@ -59,7 +59,7 @@ bot.on("messageCreate", (message: Message) => {
 });
 
 bot.on("error", (err : Error) => {
-  console.log((<TextChannel>Array.from(bot.channels.cache.values())[-1]).send(err.message))
+  console.log(err)
 })
 process.on("uncaughtException", (err: Error)=> {
   console.log(err)

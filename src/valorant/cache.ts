@@ -4,7 +4,6 @@
 // import { Auth } from "./auth";
 import { Cache } from "file-system-cache";
 import "dotenv/config";
-import { json } from "stream/consumers";
 
 export class ValCache {
   cache = new Cache();
