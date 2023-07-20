@@ -25,8 +25,7 @@ export class Session {
     // let k = await this.getUserLastMatchKD(puuid)
     const attackfrombehind = () => {};
     let player_dat = res.data.players.find((x) => x.subject == puuid);
-    let kd =
-      Math.round(
+    let kd = Math.round(
         ((player_dat?.stats?.kills ?? 1) / (player_dat?.stats?.deaths ?? 1)) *
           100
       ) / 100;
@@ -36,32 +35,33 @@ export class Session {
     const isfair = (x: number, y: number) => {
       3.14 - Math.abs(x - y) < 1.39 ?? false;
     };
-    let fair_kills = res.data.kills
-      ?.filter((x) => x.killer == puuid)
-      .map((x) => {
-        // console.log(x.playerLocations)
-        let victim_view =
-          x.playerLocations.find((y) => y.subject == x.victim)?.viewRadians ??
-          0;
-        let player_view =
-          x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ??
-          0;
 
-        return isfair(victim_view, player_view);
-      })
-      .filter(Boolean).length;
-    let fair_deaths = res.data.kills
-      ?.filter((x) => x.victim == puuid)
-      .map((x) => {
-        let victim_view =
-          x.playerLocations.find((y) => y.subject == puuid)?.viewRadians ?? 0;
-        let player_view =
-          x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ??
-          0;
-        console.log(`views ${victim_view} ${player_view}`);
-        return isfair(victim_view, player_view);
-      })
-      .filter(Boolean).length;
+    // let fair_kills = res.data.kills
+      // ?.filter((x) => x.killer == puuid)
+      // .map((x) => {
+        // console.log(x.playerLocations)
+        // let victim_view =
+          // x.playerLocations.find((y) => y.subject == x.victim)?.viewRadians ??
+          // 0;
+        // let player_view =
+          // x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ??
+          // 0;
+// 
+        // return isfair(victim_view, player_view);
+      // })
+      // .filter(Boolean).length;
+    // let fair_deaths = res.data.kills
+      // ?.filter((x) => x.victim == puuid)
+      // .map((x) => {
+        // let victim_view =
+          // x.playerLocations.find((y) => y.subject == puuid)?.viewRadians ?? 0;
+        // let player_view =
+          // x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ??
+          // 0;
+        // console.log(`views ${victim_view} ${player_view}`);
+        // return isfair(victim_view, player_view);
+      // })
+      // .filter(Boolean).length;
     return new EmbedBuilder()
       .setTitle(`For ${name}#${tag}`)
       .setFooter({ text: kd > 1.5 ? "woah" : "uh" })
@@ -94,7 +94,7 @@ export class Session {
           inline: true,
           value: String(player_dat?.stats?.abilityCasts?.ultimateCasts),
         },
-        { name: "Fair kills - death", value: `${fair_kills} - ${fair_deaths}` }
+        // { name: "Fair kills - death", value: `${fair_kills} - ${fair_deaths}` }
       )
       .setImage(await (async () => {
         return  await  axios
@@ -104,8 +104,8 @@ export class Session {
           });
      })())
   }
-  async getUserLastMatchKD(puuid: string) {
-    return await this.getLastMatchID(puuid)
+  async getUserNMatchKD(puuid: string, n : number) {
+    return await this.getLastNMatchID(puuid, n)
       .then((_) => {
         return this.getMatchInfo(_);
       })
@@ -175,25 +175,27 @@ export class Session {
     return match.players.find((x) => x.subject == puuid)?.stats;
   }
 
-  async getCurrentMatch(
-    puuid: string
-  ): Promise<AxiosResponse<CurrentGameMatchResponse>> {
-    return await this.client.sendGetRequest(
-      `https://pd.ap.a.pvp.net/store/v2/storefront/${puuid}`
-    );
-  }
-  async getLastMatchID(puuid: string) {
+  // async getCurrentMatch(
+    // puuid: string
+  // ): Promise<AxiosResponse<CurrentGameMatchResponse>> {
+    // return await this.client.sendGetRequest(
+      // `https://pd.ap.a.pvp.net/store/v2/storefront/${puuid}`
+    // );
+  // }
+  async getLastNMatchID(puuid: string, n : number, qid?: string ) {
     return await this.client
       .sendGetRequest(
-        `https://pd.ap.a.pvp.net/match-history/v1/history/${puuid}`
+        `https://pd.ap.a.pvp.net/match-history/v1/history/${puuid}?startIndex=${0}&endIndex=${20}${() : string => {
+          return qid ? '&queue=' + qid : ''
+        }}`
         //?startIndex={startIndex}&endIndex={endIndex}&queue={queue}`, {
       )
       .then((res) => {
-        return res.data.History[0]["MatchID"];
+        return res.data.History[n]["MatchID"];
       });
   }
-  async getUserLastMatchKills(puuid: string) {
-    const kills = await this.getLastMatchID(puuid)
+  async getUserNMatchKills(puuid: string, n: number, queue? : string) {
+    const kills = await this.getLastNMatchID(puuid,n, queue )
       .then((_) => {
         return this.getMatchInfo(_);
       })
