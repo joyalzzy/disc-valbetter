@@ -1,5 +1,5 @@
 import { Pagination } from "@discordx/pagination";
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import {
   Discord,
@@ -44,8 +44,11 @@ export class AllCommands {
     await pagination.send();
   }
 }
+
+
+
 @Discord()
-@SlashGroup({ description: "valorant stats from last match", name: "last" })
+@SlashGroup({ description: "valorant stats from last match", name: "last" , root: 'stats'})
 @SlashGroup("last")
 export class ValorantStatsChecker {
   @Slash({
@@ -60,7 +63,14 @@ export class ValorantStatsChecker {
       type: ApplicationCommandOptionType.String,
     })
     username: string,
-    interaction: CommandInteraction
+    @SlashOption({
+      description: "comp | unrated | swift | tdm | premier | replication (empty for all) ",
+      name: "mode",
+      required: false,
+      type: ApplicationCommandOptionType.String,
+    })
+    mode: string,
+    interaction: CommandInteraction,
   ) {
     await interaction.deferReply();
     const args = username.split("#");

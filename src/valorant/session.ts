@@ -33,7 +33,9 @@ export class Session {
     let winsbyteam =
       res.data.roundResults?.filter((x) => x.winningTeam == player_dat?.teamId)
         .length ?? 0;
-    const isfair = (x : number, y : number) => { (3.14 - (Math.abs(x - y)) < 1.39) ?? false}  
+    const isfair = (x: number, y: number) => {
+      3.14 - Math.abs(x - y) < 1.39 ?? false;
+    };
     let fair_kills = res.data.kills
       ?.filter((x) => x.killer == puuid)
       .map((x) => {
@@ -41,38 +43,44 @@ export class Session {
         let victim_view =
           x.playerLocations.find((y) => y.subject == x.victim)?.viewRadians ??
           0;
-        let player_view = x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ?? 0;
-       
+        let player_view =
+          x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ??
+          0;
+
         return isfair(victim_view, player_view);
-      }).filter(Boolean).length;
+      })
+      .filter(Boolean).length;
     let fair_deaths = res.data.kills
       ?.filter((x) => x.victim == puuid)
       .map((x) => {
         let victim_view =
-          x.playerLocations.find((y) => y.subject == puuid)?.viewRadians ??
-          0;
+          x.playerLocations.find((y) => y.subject == puuid)?.viewRadians ?? 0;
         let player_view =
-          x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ?? 0;
-        console.log(`views ${victim_view} ${player_view}`)
+          x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ??
+          0;
+        console.log(`views ${victim_view} ${player_view}`);
         return isfair(victim_view, player_view);
-      }).filter(Boolean).length;
+      })
+      .filter(Boolean).length;
     return new EmbedBuilder()
       .setTitle(`For ${name}#${tag}`)
       .setFooter({ text: kd > 1.5 ? "woah" : "uh" })
       .addFields(
         {
           name: "Score",
+          inline: true,
           value: `${winsbyteam} -  ${
             (res.data.roundResults?.length ?? 0) - winsbyteam
           }`,
         },
         {
           name: "KD",
+          inline: true,
           value: `${String(kd)}, ${player_dat?.stats?.kills}/${
             player_dat?.stats?.deaths
           }/${player_dat?.stats?.assists}`,
         },
-        { name: "Mode", value: res.data.matchInfo.gameMode },
+        { name: "Mode", inline: true, value: res.data.matchInfo.gameMode },
         {
           name: "Defusals - Plants",
           value: `${
@@ -83,14 +91,18 @@ export class Session {
         },
         {
           name: "Ults",
+          inline: true,
           value: String(player_dat?.stats?.abilityCasts?.ultimateCasts),
         },
-        { name: "Fair kills - death", value: `${fair_kills} - ${fair_deaths}`}
+        { name: "Fair kills - death", value: `${fair_kills} - ${fair_deaths}` }
       )
-      .setImage(() => {
-        return ""
-      }
-      );
+      .setImage(await (async () => {
+        return  await  axios
+          .get(`https://valorant-api.com/v1/agents/${player_dat?.characterId}`)
+          .then((_) => {
+            return <string>_.data.data.displayIcon ;
+          });
+     })())
   }
   async getUserLastMatchKD(puuid: string) {
     return await this.getLastMatchID(puuid)
