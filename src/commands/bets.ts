@@ -57,7 +57,7 @@ export class BetsCommands {
     bettype: string,
     interaction: CommandInteraction
   ) {
-    interaction.deferReply()
+    await interaction.deferReply()
     const bet = new Bets();
     const args = username.split("#")
     const puuid = await valorant.getPlayerPuuid(
@@ -65,6 +65,6 @@ export class BetsCommands {
       args[1]
     );
     const mid = await valorant.getLastNMatchID(puuid);
-    return await interaction.reply(bet.start(Bets.Types.KILLS, interaction.user.id, puuid, mid)? 'Joined Bet' : 'Failed for some reason') 
+    return await interaction.followUp(bet.start(Bets.Types.KILLS, interaction.user.id, puuid, mid)? 'Joined Bet' : 'Failed for some reason') 
   }
 }

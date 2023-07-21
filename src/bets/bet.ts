@@ -18,6 +18,7 @@ export class Bets {
   type: Bets.Types;
   puuid: string;
   last_mid: string;
+  checktask : NodeJS.Timer;
   public static ongoing: Bets[] = [];
   public start(
     type: Bets.Types,
@@ -32,7 +33,7 @@ export class Bets {
     this.puuid = puuid;
     this.last_mid = last_mid;
     Bets.ongoing.push(this);
-    setInterval(async () => {
+    this.checktask = setInterval(async () => {
       const m = await this.checkMatchEnded()
       m ? this.concludeBets(<string>m) : console.log('not ended')}, 120000)
     console.log(`started bets ${this.bet_id}`)
@@ -48,13 +49,15 @@ export class Bets {
     this.bets.push({ id: id, amount: amount, bet: bet });
   }
   public async checkMatchEnded() : Promise<boolean | string> {
+    console.log('checking')
     const mid = await valorant.getLastNMatchID(this.puuid) 
     return (mid == this.last_mid) ? mid : false
   }
   public async concludeBets(mid: string): Promise<string> {
+    clearInterval(this.checktask)
     console.log('ended')
-    console.log(await valorant.getMatchInfo(mid))
-    const match = await valorant.getMatchInfo(this.last_mid);
+    const match = (await valorant.getMatchInfo(mid));
+    console.log(match.data.matchInfo.customGameName)
     switch (this.type) {
       case Bets.Types.KILLS:
         match.data.players.find((x) => x.subject == this.puuid)?.stats?.kills;
@@ -72,7 +75,7 @@ export class Bets {
     // await bot.users.fetch(this.initiator_id).then(res => {
     // res.
     // })
-    return `<@${this.initiator_id} Bet on ${this.type}`;
+    return `<@${this.initiator_id}> Bet on ${this.type}`;
   }
   public static getAutocomplete(): ApplicationCommandOptionChoiceData[] {
     return Bets.ongoing.map((x) => {return {name: x.parseBetName(), value: x.bet_id}});
