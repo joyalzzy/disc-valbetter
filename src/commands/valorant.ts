@@ -6,6 +6,7 @@ import axios from "axios";
 import { MatchDetailsResponse, queueIDSchema } from "valorant-api-types";
 import { parseQID } from "../valorant/utils";
 import { parse } from "path";
+import { nOption, queueOption, usernameOption } from "../utils/commonOptions";
 
 // @Discord()
 // export class AllCommands {
@@ -69,28 +70,12 @@ export class ValorantStatsChecker {
     name: "kills",
   })
   async getKillsfromLast(
-    @SlashOption({
-      description: "in the formate of `username`#`tag`",
-      name: "username",
-      required: true,
-      type: ApplicationCommandOptionType.String,
-    })
+    @usernameOption 
     username: string,
-    @SlashOption({
-      description:
-        "comp | unrated | swift | tdm | premier | replication (empty for all) ",
-      name: "queue",
-      required: false,
-      type: ApplicationCommandOptionType.String,
-    })
+    @queueOption
     queue: string,
-    @SlashOption({
-      description: "n from last",
-      name: "n",
-      required: false,
-      type: ApplicationCommandOptionType.Number,
-    })
-    n: number,
+    @nOption
+    n: number = 0,
     interaction: CommandInteraction
   ) {
     await interaction.deferReply();
@@ -113,20 +98,13 @@ export class ValorantStatsChecker {
     name: "kd",
   })
   async getKDfromNLast(
-    @SlashOption({
-      description: "in the formate of `username`#`tag`",
-      name: "username",
-      required: true,
-      type: ApplicationCommandOptionType.String,
-    })
+    
+    @usernameOption 
     username: string,
-    @SlashOption({
-      description: "n from last match",
-      name: "n",
-      required: false,
-      type: ApplicationCommandOptionType.Number,
-    })
-    n: number,
+    // @queueOption
+    // queue: string,
+    @nOption
+    n: number = 0,
     interaction: CommandInteraction
   ) {
     await interaction.deferReply();
@@ -149,29 +127,11 @@ export class ValorantStatsChecker {
     name: "all",
   })
   async getAllStatsfromLast(
-    @SlashOption({
-      description: "in the formate of `username`#`tag`",
-      name: "username",
-      required: true,
-      type: ApplicationCommandOptionType.String,
-    })
+    @usernameOption 
     username: string,
-    @SlashOption({
-      description:
-        "comp | unrated | swift | tdm | premier | replication (empty for all) ",
-      name: "queue",
-      required: false,
-      type: ApplicationCommandOptionType.String,
-      // transformer: parseQID
-      }
-    )
+    @queueOption
     queue: string,
-    @SlashOption({
-      description: "number from last 1 for the 2nd in list",
-      name: "n",
-      required: false,
-      type: ApplicationCommandOptionType.Number,
-    })
+    @nOption
     n: number = 0,
     interaction: CommandInteraction
   ) {
@@ -180,7 +140,7 @@ export class ValorantStatsChecker {
     const em = await valorant
       .getPlayerPuuid(args[0], args[1])
       .then(async (_) => {
-        let mid = await valorant.getLastNMatchID(_, n, parseQID(queue));
+        let mid = await valorant.getLastNMatchID(_, n, queue);
         return await valorant.getMatchInfo(mid).then((res) => {
           return valorant.parsePersonalMatchInfotoEmbed(
             args[0],
