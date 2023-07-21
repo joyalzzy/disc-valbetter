@@ -1,64 +1,7 @@
 import { CommandInteraction } from "discord.js";
-import { ApplicationCommandOptionType } from "discord.js";
-import { Discord, Slash, SlashGroup, SlashOption } from "discordx";
+import { Discord, Slash, SlashGroup } from "discordx";
 import { valorant } from "../main";
-import axios from "axios";
-import { MatchDetailsResponse, queueIDSchema } from "valorant-api-types";
-import { parseQID } from "../valorant/utils";
-import { parse } from "path";
 import { nOption, queueOption, usernameOption } from "../utils/commonOptions";
-
-// @Discord()
-// export class AllCommands {
-// example: pagination for all slash command
-// @Slash({
-// description: "Pagination for all slash command",
-// name: "all-commands",
-// })
-// async pages(interaction: CommandInteraction): Promise<void> {
-// const commands = MetadataStorage.instance.applicationCommands.map((cmd) => {
-// return { description: cmd?.description, name: cmd.name };
-// });
-//
-// const pages = commands.map((cmd, i) => {
-// const embed = new EmbedBuilder()
-// .setFooter({ text: `Page ${i + 1} of ${commands.length}` })
-// .setTitle("**Slash command info**")
-// .addFields({ name: "Name", value: cmd.name })
-// .addFields({
-// name: "Description",
-// value: `${
-// cmd.description.length > 0
-// ? cmd.description
-// : "Description unavailable"
-// }`,
-// });
-//
-// return { embeds: [embed] };
-// });
-//
-// const pagination = new Pagination(interaction, pages);
-// await pagination.send()
-// }
-// }
-//
-
-// @Discord()
-// @SlashGroup({ description: "valorat stats", name: "stats"})
-// export class StatsRoot {
-// @Slash({description: 'stats'})
-// async stats (inter: CommandInteraction) {
-// inter.reply('not implemented')
-// }
-// }
-// @Discord()
-// export class StatsBase {
-// @Slash({description: 'not implemented', name: 'stats'})
-// async stats (interaction: CommandInteraction) {
-// return await interaction.reply('not implemented')
-// }
-// }
-
 
 @Discord()
 @SlashGroup({ description: "valorant last stats", name: "last" })
@@ -101,8 +44,6 @@ export class ValorantStatsChecker {
     
     @usernameOption 
     username: string,
-    // @queueOption
-    // queue: string,
     @nOption
     n: number = 0,
     interaction: CommandInteraction

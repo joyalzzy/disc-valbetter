@@ -1,19 +1,12 @@
-// import { Auth } from "./auth";
-// import { Match } from "./match";
-// import { Party } from "./party";
-// import { ValUser } from "./client";
 import { Client } from "./client";
 import {
-  CurrentGameMatchResponse,
   MatchDetailsResponse,
   PartyInviteResponse,
-  PartyPlayerResponse,
-  chatSessionEndpoint,
+  PartyPlayerResponse
 } from "valorant-api-types";
-import axios, { Axios, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { ValCache } from "./cache";
-import { bot } from "../main";
-import { Embed, EmbedBuilder } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 
 export class Session {
   async parsePersonalMatchInfotoEmbed(
@@ -22,7 +15,6 @@ export class Session {
     puuid: string,
     res: AxiosResponse<MatchDetailsResponse>
   ) {
-    // let k = await this.getUserLastMatchKD(puuid)
     const attackfrombehind = () => {};
     let player_dat = res.data.players.find((x) => x.subject == puuid);
     let kd = Math.round(
@@ -36,32 +28,6 @@ export class Session {
       3.14 - Math.abs(x - y) < 1.39 ?? false;
     };
 
-    // let fair_kills = res.data.kills
-      // ?.filter((x) => x.killer == puuid)
-      // .map((x) => {
-        // console.log(x.playerLocations)
-        // let victim_view =
-          // x.playerLocations.find((y) => y.subject == x.victim)?.viewRadians ??
-          // 0;
-        // let player_view =
-          // x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ??
-          // 0;
-// 
-        // return isfair(victim_view, player_view);
-      // })
-      // .filter(Boolean).length;
-    // let fair_deaths = res.data.kills
-      // ?.filter((x) => x.victim == puuid)
-      // .map((x) => {
-        // let victim_view =
-          // x.playerLocations.find((y) => y.subject == puuid)?.viewRadians ?? 0;
-        // let player_view =
-          // x.playerLocations.find((y) => y.subject == x.killer)?.viewRadians ??
-          // 0;
-        // console.log(`views ${victim_view} ${player_view}`);
-        // return isfair(victim_view, player_view);
-      // })
-      // .filter(Boolean).length;
     return new EmbedBuilder()
       .setTitle(`For ${name}#${tag}`)
       .setFooter({ text: kd > 1.5 ? "woah" : "uh" })
@@ -122,7 +88,6 @@ export class Session {
             })();
       });
 
-    // throw new Error("Method not implemented.");
   }
   protected cache: ValCache;
   protected client: Client;
@@ -135,7 +100,7 @@ export class Session {
     );
     await this.cache.ready;
     console.log("ready");
-    // console.log(await this.cache.getPuuid('whiffdemon', 'luvcb'))
+
   }
   async getPlayerPuuid(name: string, tag: string) {
     return await this.cache.getPuuid(name, tag).then((id) => {
@@ -151,44 +116,18 @@ export class Session {
             this.cache.setPuuid(name, tag, _);
             return _;
           });
-      // : (async () => {
-      // const res = await this.getPlayerParty(this.client.puuid);
-      // const res_1 = await this.sendInvite(
-      // name,
-      // tag,
-      // res.data.CurrentPartyID
-      // );
-      // const id = <string>res_1.data.Invites![0]["Subject"];
-      // console.log(id)
-      // this.cache.setPuuid(name, tag, id);
-      // return id;
-      // })();
-      // }).catch(async () => {return (await axios.get(`http://api.henrikdev.xyz/valorant/v1/account/${name}/${tag}`)).data.data.puuid}).then(_ => {
-      // this.cache.setPuuid(name, tag, _)
-      // return _
-      // }).catch(_ => {
-      // throw Error('Not found')
-      // });
     });
   }
   async getPlayerDetailsFromMatch(match: MatchDetailsResponse, puuid: string) {
     return match.players.find((x) => x.subject == puuid)?.stats;
   }
 
-  // async getCurrentMatch(
-    // puuid: string
-  // ): Promise<AxiosResponse<CurrentGameMatchResponse>> {
-    // return await this.client.sendGetRequest(
-      // `https://pd.ap.a.pvp.net/store/v2/storefront/${puuid}`
-    // );
-  // }
   async getLastNMatchID(puuid: string, n : number, qid?: string ) {
     return await this.client
       .sendGetRequest(
         `https://pd.ap.a.pvp.net/match-history/v1/history/${puuid}?startIndex=0&endIndex=${n+1}${(() : string => {
           return qid ? '&queue=' + qid : ''
         })()}`
-        //?startIndex={startIndex}&endIndex={endIndex}&queue={queue}`, {
       )
       .then((res) => {
         return res.data.History[n]["MatchID"];
@@ -213,7 +152,6 @@ export class Session {
       .sendGetRequest(
         `https://pd.ap.a.pvp.net/match-details/v1/matches/${matchID}`
       )
-      //?startIndex={startIndex}&endIndex={endIndex}&queue={queue}`, {)
       .then((res) => res);
   }
   async getPlayerParty(

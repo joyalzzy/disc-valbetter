@@ -1,4 +1,3 @@
-import { CommandInteraction } from "discord.js";
 
 const queueids = new Map<string[], string>([
   [["competitive", "ranked", "comps", "comp"], "competitive"],

@@ -1,9 +1,5 @@
 import {
-  ApplicationCommandOptionType,
-  ApplicationCommandOptionWithChoicesAndAutocompleteMixin,
-  AutocompleteInteraction,
-  CommandInteraction,
-  InteractionCollector,
+  ApplicationCommandOptionType, AutocompleteInteraction
 } from "discord.js";
 import { SlashOption } from "discordx";
 
