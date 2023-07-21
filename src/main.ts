@@ -33,7 +33,7 @@ valorant.run()
 
 bot.once("ready", async () => {
   // Make sure all guilds are cached
-  await bot.clearApplicationCommands()
+  // await bot.clearApplicationCommands()
   await bot.guilds.fetch();
 
   // Synchronize applications commands with Discord

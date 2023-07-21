@@ -2,9 +2,14 @@ import { Client } from "./client";
 import {
   MatchDetailsResponse,
   PartyInviteResponse,
-  PartyPlayerResponse
+  PartyPlayerResponse,
+  MatchHistoryResponse,
+  CurrentGameMatchResponse,
+  CurrentGamePlayerResponse,
+  PartyRequestResponse,
+  PartyResponse
 } from "valorant-api-types";
-import axios, { AxiosResponse } from "axios";
+import axios, { Axios, AxiosResponse } from "axios";
 import { ValCache } from "./cache";
 import { EmbedBuilder } from "discord.js";
 
@@ -122,14 +127,14 @@ export class Session {
     return match.players.find((x) => x.subject == puuid)?.stats;
   }
 
-  async getLastNMatchID(puuid: string, n : number, qid?: string ) {
+  async getLastNMatchID(puuid: string, n : number = 0, qid?: string ) {
     return await this.client
       .sendGetRequest(
         `https://pd.ap.a.pvp.net/match-history/v1/history/${puuid}?startIndex=0&endIndex=${n+1}${(() : string => {
           return qid ? '&queue=' + qid : ''
         })()}`
       )
-      .then((res) => {
+      .then((res : AxiosResponse<MatchHistoryResponse>) => {
         return res.data.History[n]["MatchID"];
       });
   }
@@ -147,15 +152,15 @@ export class Session {
     return kills;
   }
 
-  async getMatchInfo(matchID: string) {
+  async getMatchInfo(matchID: string)  {
     return await this.client
       .sendGetRequest(
         `https://pd.ap.a.pvp.net/match-details/v1/matches/${matchID}`
       )
-      .then((res) => res);
+      .then((res) => <AxiosResponse<MatchDetailsResponse>>res);
   }
   async getPlayerParty(
-    puuid: string
+    puuid: string = this.client.puuid
   ): Promise<AxiosResponse<PartyPlayerResponse>> {
     return Promise.resolve(
       await this.client.sendGetRequest(
@@ -163,6 +168,10 @@ export class Session {
         this.client.hversion
       )
     );
+  }
+
+  async getPartyInfo(pid : string) : Promise<AxiosResponse<PartyResponse>> {
+    return await this.client.sendGetRequest(`https://glz-ap-1.ap.a.pvp.net/parties/v1/parties/${pid}`)
   }
 
   async sendInvite(
@@ -177,5 +186,10 @@ export class Session {
         this.client.hversion
       )
     );
+  }
+
+  // current stuff
+  async getCurrentMatchID(puuid : string) {
+    return (<CurrentGamePlayerResponse>(await this.client.sendGetRequest(`https://glz-ap-1.ap.a.pvp.net/core-game/v1/players/${puuid}`)).data).MatchID
   }
 }

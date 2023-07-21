@@ -36,6 +36,7 @@ export class Handler {
     this.ax.interceptors.response.use(
       (res) => {
         console.log(`${res.status} ${res.config.url}`);
+        
         return res;
       },
       (err: Error) => {
@@ -44,6 +45,7 @@ export class Handler {
     );
     this.ax.interceptors.request.use((req) => {
       console.log(`sent ${req.url}`);
+
       return req;
     });
   }

@@ -6,14 +6,13 @@ import { nOption, queueOption, usernameOption } from "../utils/commonOptions";
 @Discord()
 @SlashGroup({ description: "valorant last stats", name: "last" })
 @SlashGroup("last")
-export class ValorantStatsChecker {
-
+export class ValorantStatsCommands {
   @Slash({
     description: "get kills for player",
     name: "kills",
   })
   async getKillsfromLast(
-    @usernameOption 
+    @usernameOption
     username: string,
     @queueOption
     queue: string,
@@ -41,8 +40,7 @@ export class ValorantStatsChecker {
     name: "kd",
   })
   async getKDfromNLast(
-    
-    @usernameOption 
+    @usernameOption
     username: string,
     @nOption
     n: number = 0,
@@ -68,7 +66,7 @@ export class ValorantStatsChecker {
     name: "all",
   })
   async getAllStatsfromLast(
-    @usernameOption 
+    @usernameOption
     username: string,
     @queueOption
     queue: string,
