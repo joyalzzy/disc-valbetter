@@ -50,6 +50,10 @@ export class Handler {
     }, (err : Error) => {
       return Promise.reject(`${err.message} ${err.name}`)
     })
+    this.ax.interceptors.request.use((req) => {
+      console.log(`sent ${req.url}`)
+      return req
+    })
   }
   async sendPostRequest(url: string, data: {}, headers?: {}) {
     return await this.ax.post(url, data, {

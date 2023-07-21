@@ -62,7 +62,7 @@ bot.on("error", (err : Error) => {
   console.log(err)
 })
 process.on("uncaughtException", (err: Error)=> {
-  console.log(err)
+  console.log(`${err.message} ${err.cause}`)
 })
 
 async function run() {

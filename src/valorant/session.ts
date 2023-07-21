@@ -80,7 +80,7 @@ export class Session {
             player_dat?.stats?.deaths
           }/${player_dat?.stats?.assists}`,
         },
-        { name: "Mode", inline: true, value: res.data.matchInfo.gameMode },
+        { name: "Mode", inline: true, value: res.data.matchInfo.queueID },
         {
           name: "Defusals - Plants",
           value: `${
@@ -185,9 +185,9 @@ export class Session {
   async getLastNMatchID(puuid: string, n : number, qid?: string ) {
     return await this.client
       .sendGetRequest(
-        `https://pd.ap.a.pvp.net/match-history/v1/history/${puuid}?startIndex=${0}&endIndex=${20}${() : string => {
+        `https://pd.ap.a.pvp.net/match-history/v1/history/${puuid}?startIndex=0&endIndex=${n+1}${(() : string => {
           return qid ? '&queue=' + qid : ''
-        }}`
+        })()}`
         //?startIndex={startIndex}&endIndex={endIndex}&queue={queue}`, {
       )
       .then((res) => {

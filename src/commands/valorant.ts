@@ -2,6 +2,8 @@ import { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashGroup, SlashOption } from "discordx";
 import { valorant } from "../main";
+import axios from "axios";
+import { MatchDetailsResponse, queueIDSchema } from "valorant-api-types";
 
 // @Discord()
 // export class AllCommands {
@@ -53,10 +55,23 @@ import { valorant } from "../main";
 // return await interaction.reply('not implemented')
 // }
 // }
+export namespace Valorant {
+  export enum QueueID {
+    UNRATED='96bd3920-4f36-d026-2b28-c683eb0bcac5',
+    DEATHMATCH="a8790ec5-4237-f2f0-e93b-08a8e89865b2",
+    ESCALATION='a4ed6518-4741-6dcb-35bd-f884aecdc859',
+    TDM="e086db66-47fd-e791-ca81-06a645ac7661",
+    REPLICATION="4744698a-4513-dc96-9c22-a9aa437e4a58",
+    SPIE_RUSH="e921d1e6-416b-c31f-1291-74930c330b7b",
+    SNOWBALL="57038d6d-49b1-3a74-c5ef-3395d9f23a97",
+    SWIFTPLAY="5d0f264b-4ebe-cc63-c147-809e1374484b"
+  }
+}
 @Discord()
 @SlashGroup({ description: "valorant last stats", name: "last" })
 @SlashGroup("last")
 export class ValorantStatsChecker {
+  
   @Slash({
     description: "get kills for player",
     name: "kills",
@@ -155,8 +170,11 @@ export class ValorantStatsChecker {
       name: "queue",
       required: false,
       type: ApplicationCommandOptionType.String,
+      transformer: (queue, interaction) : queueID=> {
+        return['competitive', 'custom', 'deathmatch', 'ggteam','hurm', 'newmap', 'onefa', 'premier','snowball','spikerush','swiftplay','unrated']
+      }
     })
-    queue: string,
+    queue: Valorant.QueueID,
     @SlashOption({
       description: "number from last 1 for the 2nd in list",
       name: "n",
@@ -168,10 +186,13 @@ export class ValorantStatsChecker {
   ) {
     await interaction.deferReply();
     const args = username.split("#");
+    const qid = () => {
+      return 
+    }
     const em = await valorant
       .getPlayerPuuid(args[0], args[1])
       .then(async (_) => {
-        let mid = await valorant.getLastNMatchID(_, n, queue);
+        let mid = await valorant.getLastNMatchID(_, n, await axios.get(`https://valorant-api.com/v1/gamemodes/${}`));
         return await valorant.getMatchInfo(mid).then((res) => {
           return valorant.parsePersonalMatchInfotoEmbed(
             args[0],
