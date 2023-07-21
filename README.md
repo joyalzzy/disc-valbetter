@@ -30,9 +30,7 @@ using [techchrism's docs](https://valapidocs.techchrism.me/)
 [endpoints](https://gist.github.com/Kavan72/b6e0bfdf21d610148f64df878b8a2cc5)
 
 # todo
-- [ ] clear this spagget 
 - [ ] write the actual thing
-- [ ] make it so that the headers can be easily accessed e.g (headers1, headers2) in User instead of Auth
 
 # api 
 - 30/min
