@@ -1,4 +1,9 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
+import axios, {
+  AxiosError,
+  AxiosHeaders,
+  AxiosInstance,
+  AxiosResponse,
+} from "axios";
 import { wrapper } from "axios-cookiejar-support";
 import { CookieJar } from "tough-cookie";
 import { EntitlementResponse } from "valorant-api-types";
@@ -14,29 +19,36 @@ export namespace Handler {
     };
     country: string;
   };
+
+  // type headers = {};
 }
 export class Handler {
-  public headers: {};
+  public headers: AxiosHeaders;
+
   public hversion: {};
   protected ax: AxiosInstance;
   constructor() {
-    this.headers = {
+    this.headers = new AxiosHeaders();
+    this.headers.set(
       //      "Access-Control-Allow-Origin": "*",
       // "Content-Type": "application/json",
       //          "Content-Type": "application/json",
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
-    };
+      "User-Agent",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"
+    );
+    setInterval(this.refreshToken, 3600000)
     this.ax = wrapper(
       axios.create({
         jar: new CookieJar(),
         baseURL: "",
+        maxRedirects: 0,
+        validateStatus: (status: number) => status >= 200 && status < 400,
       })
     );
     this.ax.interceptors.response.use(
       (res) => {
         console.log(`received ${res.status} ${res.config.url}`);
-        
+
         return res;
       },
       (err: Error) => {
@@ -89,12 +101,11 @@ export class Handler {
       .then((_: AxiosResponse<Handler.TokenResponse>) => {
         const searchURL = new URL(_.data.response.parameters.uri);
         const urlSearch = new URLSearchParams(searchURL.hash);
-        this.headers = {
-          ...this.headers,
-          ...{
-            Authorization: `Bearer ${urlSearch.get("#access_token")}`,
-          },
-        };
+        this.headers.set(
+          "Authorization",
+          `Bearer ${urlSearch.get("#access_token")}`
+        );
+        console.log("expires in %d", urlSearch.get("expires_in"));
 
         return this.sendPostRequest(
           "https://entitlements.auth.riotgames.com/api/token/v1",
@@ -102,13 +113,23 @@ export class Handler {
         );
       })
       .then((_: AxiosResponse<EntitlementResponse>) => {
-        this.headers = {
-          ...this.headers,
-          ...{
-            "X-Riot-Entitlements-JWT": _.data.entitlements_token,
-            "X-Riot-API": process.env.RIOT_KEY,
-          },
-        };
+        this.headers.set("X-Riot-Entitlements-JWT", _.data.entitlements_token);
+        this.headers.set("X-Riot-API", process.env.RIOT_KEY);
       });
+  }
+  async refreshToken() {
+    return this.headers.set(
+      "Authorization",
+      `Bearer ${new URLSearchParams(new URL(
+        await this.sendGetRequest(
+          "https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1"
+        ).then((_: AxiosResponse) => {
+          console.log(_.headers.location);
+          return _.headers.location
+        })
+      ).hash).get("#access_token")}`
+    )
+      ? true
+      : false;
   }
 }

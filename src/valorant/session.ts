@@ -192,4 +192,10 @@ export class Session {
   async getCurrentMatchID(puuid : string) {
     return (<CurrentGamePlayerResponse>(await this.client.sendGetRequest(`https://glz-ap-1.ap.a.pvp.net/core-game/v1/players/${puuid}`)).data).MatchID
   }
+  
+  async refreshToken() {
+    return this.client.refreshToken()
+  }
+  
+  
 }

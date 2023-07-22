@@ -1,7 +1,7 @@
 import { dirname, importx } from "@discordx/importer";
 import { Koa } from "@discordx/koa";
-import type { Interaction, Message } from "discord.js";
-import { IntentsBitField } from "discord.js";
+import type { Channel, Interaction, Message, TextChannel } from "discord.js";
+import { IntentsBitField, InteractionCollector } from "discord.js";
 import { Client } from "discordx";
 import 'dotenv/config';
 import { Session } from "./valorant/session";
@@ -38,6 +38,7 @@ bot.once("ready", async () => {
 
   // Synchronize applications commands with Discord
   await bot.initApplicationCommands();
+  
 
   // To clear all guild commands, uncomment this line,
   // This is useful when moving from guild commands to global commands
@@ -62,7 +63,8 @@ bot.on("error", (err : Error) => {
   console.log(err)
 })
 process.on("uncaughtException", (err: Error)=> {
-  console.log(`${err.message} ${err.cause}`)
+  console.log(`${err.message} ${err.cause}`);
+  // (bot.get('1130439267466874960') as TextChannel).send(`${err.message} ${err.cause}`)
 })
 
 async function run() {
