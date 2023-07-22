@@ -12,7 +12,7 @@ import {
   AutocompleteInteraction,
   CommandInteraction,
 } from "discord.js";
-import { Bets, betOption } from "../bets/bet";
+import { Bets } from "../bets/bet";
 import { valorant } from "../main";
 
 @Discord()
@@ -24,7 +24,7 @@ export class BetsCommands {
     name: "join",
   })
   async joinBet(
-    @betOption
+    @Bets.betOption
     bet_id: string,
     interaction: CommandInteraction
   ) {
@@ -63,7 +63,7 @@ export class BetsCommands {
   }
   @Slash({ name: "check", description: "check if bet is resolved" })
   async check(
-    @betOption
+    @Bets.betOption
     bet: string,
     interaction: CommandInteraction
   ) {
@@ -71,7 +71,7 @@ export class BetsCommands {
   }
   @Slash({ name: "forceconclude", description: "force stop of bet" })
   async conclude(
-    @betOption 
+    @Bets.betOption 
     bet: string,
     interaction: CommandInteraction
   ) {

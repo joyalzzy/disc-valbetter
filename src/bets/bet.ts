@@ -98,8 +98,7 @@ export namespace Bets {
     KD = "kd",
     MATCH_SCORE = "match score",
   }
-}
-export const betOption = SlashOption( {
+  export const betOption = SlashOption( {
       name: "bet",
       description: "type",
       autocomplete: async (interaction: AutocompleteInteraction) => {
@@ -109,3 +108,4 @@ export const betOption = SlashOption( {
       required: false,
       type: ApplicationCommandOptionType.String,
     })
+}
