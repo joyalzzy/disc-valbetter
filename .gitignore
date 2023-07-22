@@ -10,3 +10,4 @@ yarn.lock
 build
 node_modules
 src/valorant/_tests.ts
+*.heapprofile

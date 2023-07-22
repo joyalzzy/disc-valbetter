@@ -35,16 +35,16 @@ export class Handler {
     );
     this.ax.interceptors.response.use(
       (res) => {
-        console.log(`${res.status} ${res.config.url}`);
+        console.log(`received ${res.status} ${res.config.url}`);
         
         return res;
       },
       (err: Error) => {
-        return Promise.reject(`${err.message} ${err.name}`);
+        return Promise.reject(`received ${err.message} ${err.name}`);
       }
     );
     this.ax.interceptors.request.use((req) => {
-      console.log(`sent ${req.url}`);
+      console.log(`sent ${req.method} ${req.url}`);
 
       return req;
     });
@@ -106,7 +106,7 @@ export class Handler {
           ...this.headers,
           ...{
             "X-Riot-Entitlements-JWT": _.data.entitlements_token,
-            "X-Riot-Token": process.env.RIOT_KEY,
+            "X-Riot-API": process.env.RIOT_KEY,
           },
         };
       });

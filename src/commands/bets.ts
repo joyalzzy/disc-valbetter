@@ -12,7 +12,7 @@ import {
   AutocompleteInteraction,
   CommandInteraction,
 } from "discord.js";
-import { Bets } from "../bets/bet";
+import { Bets, betOption } from "../bets/bet";
 import { valorant } from "../main";
 
 @Discord()
@@ -24,19 +24,12 @@ export class BetsCommands {
     name: "join",
   })
   async joinBet(
-    @SlashOption({
-      name: "what",
-      description: "the bet else the most recent",
-      autocomplete: (interaction: AutocompleteInteraction) => {
-        interaction.respond(Bets.getAutocomplete());
-      },
-      required: false,
-      type: ApplicationCommandOptionType.String,
-    })
+    @betOption
     bet_id: string,
     interaction: CommandInteraction
   ) {
-    interaction.deferReply()
+    Bets.ongoing.find(x => x.bet_id == bet_id)?.joinBet(interaction.user.id, 10, 120)
+    await interaction.reply('Joined bet')
   }
   @Slash({
     description: "start bet",
@@ -57,14 +50,31 @@ export class BetsCommands {
     bettype: string,
     interaction: CommandInteraction
   ) {
-    await interaction.deferReply()
+    await interaction.deferReply();
     const bet = new Bets();
-    const args = username.split("#")
-    const puuid = await valorant.getPlayerPuuid(
-      args[0],
-      args[1]
-    );
+    const args = username.split("#");
+    const puuid = await valorant.getPlayerPuuid(args[0], args[1]);
     const mid = await valorant.getLastNMatchID(puuid);
-    return await interaction.followUp(bet.start(Bets.Types.KILLS, interaction.user.id, puuid, mid)? 'Joined Bet' : 'Failed for some reason') 
+    return await interaction.followUp(
+      bet.start(Bets.Types.KILLS, interaction.user.id, puuid, mid, interaction)
+        ? "Joined Bet"
+        : "Failed for some reason"
+    );
+  }
+  @Slash({ name: "check", description: "check if bet is resolved" })
+  async check(
+    @betOption
+    bet: string,
+    interaction: CommandInteraction
+  ) {
+    await interaction.reply(`has it ${await Bets.ongoing.find(x => x.bet_id == bet)?.checkMatchEnded()}`)
+  }
+  @Slash({ name: "forceconclude", description: "force stop of bet" })
+  async conclude(
+    @betOption 
+    bet: string,
+    interaction: CommandInteraction
+  ) {
+    await interaction.reply(`has it ${await Bets.ongoing.find(x => x.bet_id == bet)?.checkMatchEnded()}`)
   }
 }
