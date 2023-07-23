@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosHeaders, AxiosResponse } from "axios";
 import { PlayerInfoResponse } from "valorant-api-types";
 import { Handler } from "./valhandler";
 
@@ -9,11 +9,11 @@ export class Client extends Handler {
   region: any;
   shard: any;
   async init(user: string, pass: string) {
-    this.hversion = {
-      "X-Riot-ClientVersion": (
+    this.hversion = new AxiosHeaders().set(
+      'X-Riot-ClientVersion', (
         await this.ax.get("https://valorant-api.com/v1/version")
-      ).data.data.version,
-    };
+      ).data.data.riotClientVersion);
+    
     this.region = "ap";
     this.shard = "ap";
     this.user = user;

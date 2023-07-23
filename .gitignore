@@ -9,5 +9,5 @@ yarn.lock
 # folders
 build
 node_modules
-src/valorant/_tests.ts
+src/**/_tests.ts
 *.heapprofile

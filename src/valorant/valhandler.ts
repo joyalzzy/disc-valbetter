@@ -8,6 +8,7 @@ import { wrapper } from "axios-cookiejar-support";
 import { CookieJar } from "tough-cookie";
 import { EntitlementResponse } from "valorant-api-types";
 import { ValCache } from "./cache";
+import { errorMonitor } from "events";
 export namespace Handler {
   export type TokenResponse = {
     type: "response";
@@ -25,16 +26,12 @@ export namespace Handler {
 export class Handler {
   public headers: AxiosHeaders;
 
-  public hversion: {};
+  public hversion: AxiosHeaders;
   protected ax: AxiosInstance;
   constructor() {
     this.headers = new AxiosHeaders();
     this.headers.set(
-      //      "Access-Control-Allow-Origin": "*",
-      // "Content-Type": "application/json",
-      //          "Content-Type": "application/json",
-      "User-Agent",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"
+      
     );
     setInterval(async () => {await this.refreshToken()}, 3600000)
     this.ax = wrapper(
@@ -51,8 +48,8 @@ export class Handler {
 
         return res;
       },
-      (err: Error) => {
-        return Promise.reject(`received ${err.message} ${err.name}`);
+      (err: AxiosError) => {
+        return Promise.reject(`received ${err.message} ${err.name} ${err.request._headers}`);
       }
     );
     this.ax.interceptors.request.use((req) => {
@@ -61,22 +58,23 @@ export class Handler {
       return req;
     });
   }
-  async sendPostRequest(url: string, data: {}, headers?: {}) {
+  async sendPostRequest(url: string, data: {}, headers?: AxiosHeaders) {
     return await this.ax.post(url, data, {
-      headers: { ...headers, ...this.headers },
+      headers:  this.headers ,
     });
   }
-  async sendGetRequest(url: string, headers?: {}) {
+  async sendGetRequest(url: string, headers?: AxiosHeaders) {
     return await this.ax.get(url, {
-      headers: { ...headers, ...this.headers },
-    });
+      headers: this.headers.concat(headers),
+    })
   }
-  async sendPutRequest(url: string, data: {}, headers?: {}) {
+  async sendPutRequest(url: string, data: {}, headers?: AxiosHeaders) {
     return await this.ax.put(url, data, {
-      headers: { ...headers, ...this.headers },
+      headers:  this.headers ,
     });
   }
   async setAuthedHeaders(user: string, pass: string) {
+    this.ax.defaults.headers.common["User-Agent"]= `RiotClient/${(await axios.get('https://valorant-api.com/v1/version')).data.data.riotClientBuild} rso-auth (Windows; 10;;Professional, x64)`;
     await this.sendPostRequest(
       "https://auth.riotgames.com/api/v1/authorization",
       {
@@ -117,6 +115,7 @@ export class Handler {
         this.headers.set("X-Riot-API", process.env.RIOT_KEY);
       });
   }
+  
   async refreshToken() {
     return this.headers.set(
       "Authorization",
@@ -127,8 +126,10 @@ export class Handler {
           return _.headers.location
         })
       ).hash).get("#access_token")}`
-    )
-      ? true
-      : false;
+    ) 
   }
 }
+
+// export function catchValerror() {
+// 
+// }
