@@ -36,7 +36,7 @@ export class Handler {
       "User-Agent",
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246"
     );
-    setInterval(this.refreshToken, 3600000)
+    setInterval(async () => {await this.refreshToken()}, 3600000)
     this.ax = wrapper(
       axios.create({
         jar: new CookieJar(),
@@ -124,7 +124,6 @@ export class Handler {
         await this.sendGetRequest(
           "https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1"
         ).then((_: AxiosResponse) => {
-          console.log(_.headers.location);
           return _.headers.location
         })
       ).hash).get("#access_token")}`

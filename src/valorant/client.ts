@@ -2,7 +2,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import { PlayerInfoResponse } from "valorant-api-types";
 import { Handler } from "./valhandler";
 
-export namespace ValUser {}
+export namespace Client {}
 export class Client extends Handler {
   user: string;
   puuid: any;

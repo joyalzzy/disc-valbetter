@@ -14,6 +14,19 @@ import { ValCache } from "./cache";
 import { EmbedBuilder } from "discord.js";
 
 export class Session {
+  protected cache: ValCache;
+  protected client: Client;
+  async run() {
+    this.cache = new ValCache();
+    this.client = new Client();
+    await this.client.init(
+      process.env.VAL_USER || "",
+      process.env.VAL_PASS || ""
+    );
+    await this.cache.ready;
+    console.log("ready");
+
+  }
   async parsePersonalMatchInfotoEmbed(
     name: string,
     tag: string,
@@ -94,19 +107,7 @@ export class Session {
       });
 
   }
-  protected cache: ValCache;
-  protected client: Client;
-  async run() {
-    this.cache = new ValCache();
-    this.client = new Client();
-    await this.client.init(
-      process.env.VAL_USER || "",
-      process.env.VAL_PASS || ""
-    );
-    await this.cache.ready;
-    console.log("ready");
-
-  }
+  
   async getPlayerPuuid(name: string, tag: string) {
     return await this.cache.getPuuid(name, tag).then((id) => {
       return id
