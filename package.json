@@ -6,10 +6,10 @@
   "type": "module",
   "main": "build/main.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --esModuleInterop",
     "build:changelog": "npx @discordx/changelog --src src",
     "dev": "node --experimental-specifier-resolution=node --loader ts-node/esm src/main.ts",
-    "start": "node build/main.js",
+    "start": "node --experimental-specifier-resolution=node  build/main.js",
     "watch": "nodemon --exec ts-node-esm src/main.ts"
   },
   "dependencies": {
