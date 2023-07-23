@@ -3,7 +3,7 @@ services:
   app:
     build: .
     command: node build/main.js
-    environment:
-      - BOT_TOKEN=${BOT_TOKEN}
+    env_file:
+    - .env
     ports:
       - 3001:3000

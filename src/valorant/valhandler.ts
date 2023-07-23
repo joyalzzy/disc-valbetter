@@ -95,6 +95,7 @@ export class Handler {
         );
       })
       .then((_: AxiosResponse<Handler.TokenResponse>) => {
+        console.log(_)
         const searchURL = new URL(_.data.response.parameters.uri);
         const urlSearch = new URLSearchParams(searchURL.hash);
         this.headers.set(
