@@ -5,15 +5,15 @@ import {
   SlashGroup,
   SlashOption,
 } from "discordx";
-import { usernameOption } from "../utils/commonOptions";
+import { usernameOption } from "../utils/commonOptions.js";
 import {
   ApplicationCommand,
   ApplicationCommandOptionType,
   AutocompleteInteraction,
   CommandInteraction,
 } from "discord.js";
-import { Bets } from "../bets/bet";
-import { valorant } from "../main";
+import { Bets } from "../bets/bet.js";
+import { valorant } from "../main.js";
 
 @Discord()
 @SlashGroup({ description: "bet", name: "bet" })
@@ -24,12 +24,22 @@ export class BetsCommands {
     name: "join",
   })
   async joinBet(
+    @SlashOption({
+      name: "amount",
+      description: "what is your bet",
+      required: true,
+      type: ApplicationCommandOptionType.Number,
+    })
+    bet: number,
     @Bets.betOption
     bet_id: string,
+
     interaction: CommandInteraction
   ) {
-    Bets.ongoing.find(x => x.bet_id == bet_id)?.joinBet(interaction.user.id, 10, 120)
-    await interaction.reply('Joined bet')
+    Bets.ongoing
+      .find((x) => x.bet_id == bet_id)
+      ?.joinBet(interaction.user.id, 120, bet);
+    await interaction.reply("Joined bet");
   }
   @Slash({
     description: "start bet",
@@ -57,7 +67,7 @@ export class BetsCommands {
     const mid = await valorant.getLastNMatchID(puuid);
     return await interaction.followUp(
       bet.start(Bets.Types.KILLS, interaction.user.id, puuid, mid, interaction)
-        ? "Joined Bet"
+        ? "Started Bet"
         : "Failed for some reason"
     );
   }
@@ -67,14 +77,29 @@ export class BetsCommands {
     bet: string,
     interaction: CommandInteraction
   ) {
-    await interaction.reply(`has it ${await Bets.ongoing.find(x => x.bet_id == bet)?.checkMatchEnded()}`)
+    await interaction.reply(
+      `has it ${await Bets.ongoing
+        .find((x) => x.bet_id == bet)
+        ?.checkMatchEnded()}`
+    );
   }
   @Slash({ name: "forceconclude", description: "force stop of bet" })
   async conclude(
-    @Bets.betOption 
+    @Bets.betOption
     bet: string,
+    @SlashOption({
+      name: "matchid",
+      description: "match id",
+      required: false,
+      type: ApplicationCommandOptionType.String,
+    })
+    matchid: string,
     interaction: CommandInteraction
   ) {
-    await interaction.reply(`has it ${await Bets.ongoing.find(x => x.bet_id == bet)?.checkMatchEnded()}`)
+    await interaction.reply(
+      `${await Bets.ongoing
+        .find((x) => x.bet_id == bet)
+        ?.concludeBets(matchid)}`
+    );
   }
 }

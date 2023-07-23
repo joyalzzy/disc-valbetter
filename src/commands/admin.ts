@@ -1,5 +1,5 @@
 import { Discord, Slash, SlashGroup } from "discordx";
-import { valorant } from "../main";
+import { valorant } from "../main.js";
 import { CommandInteraction } from "discord.js";
 
 @Discord()

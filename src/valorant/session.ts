@@ -1,16 +1,13 @@
-import { Client } from "./client";
+import { Client } from "./client.js";
 import {
   MatchDetailsResponse,
   PartyInviteResponse,
   PartyPlayerResponse,
-  MatchHistoryResponse,
-  CurrentGameMatchResponse,
-  CurrentGamePlayerResponse,
-  PartyRequestResponse,
-  PartyResponse
+  MatchHistoryResponse, CurrentGamePlayerResponse, PartyResponse,
+  CompetitiveUpdatesResponse
 } from "valorant-api-types";
-import axios, { Axios, AxiosResponse } from "axios";
-import { ValCache } from "./cache";
+import axios, { AxiosHeaders, AxiosResponse } from "axios";
+import { ValCache } from "./cache.js";
 import { EmbedBuilder } from "discord.js";
 
 export class Session {
@@ -25,7 +22,6 @@ export class Session {
     );
     await this.cache.ready;
     console.log("ready");
-
   }
   async parsePersonalMatchInfotoEmbed(
     name: string,
@@ -35,7 +31,8 @@ export class Session {
   ) {
     const attackfrombehind = () => {};
     let player_dat = res.data.players.find((x) => x.subject == puuid);
-    let kd = Math.round(
+    let kd =
+      Math.round(
         ((player_dat?.stats?.kills ?? 1) / (player_dat?.stats?.deaths ?? 1)) *
           100
       ) / 100;
@@ -45,6 +42,7 @@ export class Session {
     const isfair = (x: number, y: number) => {
       3.14 - Math.abs(x - y) < 1.39 ?? false;
     };
+    let queue = res.data.matchInfo.queueID;
 
     return new EmbedBuilder()
       .setTitle(`For ${name}#${tag}`)
@@ -64,7 +62,7 @@ export class Session {
             player_dat?.stats?.deaths
           }/${player_dat?.stats?.assists}`,
         },
-        { name: "Mode", inline: true, value: res.data.matchInfo.queueID },
+        { name: "Mode", inline: true, value: queue },
         {
           name: "Defusals - Plants",
           value: `${
@@ -78,17 +76,37 @@ export class Session {
           inline: true,
           value: String(player_dat?.stats?.abilityCasts?.ultimateCasts),
         },
+        {
+          name: "RR",
+          inline: true,
+          value:
+            (
+              await this.client
+                .sendGetRequest(
+                  `https://pd.ap.a.pvp.net/mmr/v1/players/${puuid}/competitiveupdates?startIndex=0&endIndex=20&queue=${queue}`
+                , new AxiosHeaders({"X-Riot-ClientPlatform": 'ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9'}))
+                .then((_: AxiosResponse<CompetitiveUpdatesResponse>) => {
+                  return _.data.Matches.find(
+                    (x) => x.MatchID == res.data.matchInfo.matchId
+                  )?.RankedRatingEarned ?? 'na'
+                })
+            )?.toString(),
+        }
         // { name: "Fair kills - death", value: `${fair_kills} - ${fair_deaths}` }
       )
-      .setImage(await (async () => {
-        return  await  axios
-          .get(`https://valorant-api.com/v1/agents/${player_dat?.characterId}`)
-          .then((_) => {
-            return <string>_.data.data.displayIcon ;
-          });
-     })())
+      .setImage(
+        await (async () => {
+          return await axios
+            .get(
+              `https://valorant-api.com/v1/agents/${player_dat?.characterId}`
+            )
+            .then((_) => {
+              return <string>_.data.data.displayIcon;
+            });
+        })()
+      );
   }
-  async getUserNMatchKD(puuid: string, n : number) {
+  async getUserNMatchKD(puuid: string, n: number) {
     return await this.getLastNMatchID(puuid, n)
       .then((_) => {
         return this.getMatchInfo(_);
@@ -105,9 +123,8 @@ export class Session {
               return "fuck";
             })();
       });
-
   }
-  
+
   async getPlayerPuuid(name: string, tag: string) {
     return await this.cache.getPuuid(name, tag).then((id) => {
       return id
@@ -128,19 +145,21 @@ export class Session {
     return match.players.find((x) => x.subject == puuid)?.stats;
   }
 
-  async getLastNMatchID(puuid: string, n : number = 0, qid?: string ) {
+  async getLastNMatchID(puuid: string, n: number = 0, qid?: string) {
     return await this.client
       .sendGetRequest(
-        `https://pd.ap.a.pvp.net/match-history/v1/history/${puuid}?startIndex=0&endIndex=${n+1}${(() : string => {
-          return qid ? '&queue=' + qid : ''
+        `https://pd.ap.a.pvp.net/match-history/v1/history/${puuid}?startIndex=0&endIndex=${
+          n + 1
+        }${((): string => {
+          return qid ? "&queue=" + qid : "";
         })()}`
       )
-      .then((res : AxiosResponse<MatchHistoryResponse>) => {
+      .then((res: AxiosResponse<MatchHistoryResponse>) => {
         return res.data.History[n]["MatchID"];
       });
   }
-  async getUserNMatchKills(puuid: string, n: number, queue? : string) {
-    const kills = await this.getLastNMatchID(puuid,n, queue )
+  async getUserNMatchKills(puuid: string, n: number, queue?: string) {
+    const kills = await this.getLastNMatchID(puuid, n, queue)
       .then((_) => {
         return this.getMatchInfo(_);
       })
@@ -153,7 +172,7 @@ export class Session {
     return kills;
   }
 
-  async getMatchInfo(matchID: string)  {
+  async getMatchInfo(matchID: string) {
     return await this.client
       .sendGetRequest(
         `https://pd.ap.a.pvp.net/match-details/v1/matches/${matchID}`
@@ -171,8 +190,10 @@ export class Session {
     );
   }
 
-  async getPartyInfo(pid : string) : Promise<AxiosResponse<PartyResponse>> {
-    return await this.client.sendGetRequest(`https://glz-ap-1.ap.a.pvp.net/parties/v1/parties/${pid}`)
+  async getPartyInfo(pid: string): Promise<AxiosResponse<PartyResponse>> {
+    return await this.client.sendGetRequest(
+      `https://glz-ap-1.ap.a.pvp.net/parties/v1/parties/${pid}`
+    );
   }
 
   async sendInvite(
@@ -190,13 +211,17 @@ export class Session {
   }
 
   // current stuff
-  async getCurrentMatchID(puuid : string) {
-    return (<CurrentGamePlayerResponse>(await this.client.sendGetRequest(`https://glz-ap-1.ap.a.pvp.net/core-game/v1/players/${puuid}`)).data).MatchID
+  async getCurrentMatchID(puuid: string) {
+    return (<CurrentGamePlayerResponse>(
+      (
+        await this.client.sendGetRequest(
+          `https://glz-ap-1.ap.a.pvp.net/core-game/v1/players/${puuid}`
+        )
+      ).data
+    )).MatchID;
   }
-  
+
   async refreshToken() {
-    return this.client.refreshToken()
+    return this.client.refreshToken();
   }
-  
-  
 }

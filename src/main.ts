@@ -1,10 +1,10 @@
 import { dirname, importx } from "@discordx/importer";
 import { Koa } from "@discordx/koa";
-import type { Channel, Interaction, Message, TextChannel } from "discord.js";
-import { IntentsBitField, InteractionCollector } from "discord.js";
+import type { Interaction, Message } from "discord.js";
+import { IntentsBitField } from "discord.js";
 import { Client } from "discordx";
 import 'dotenv/config';
-import { Session } from "./valorant/session";
+import { Session } from "./valorant/session.js";
 
 export const bot = new Client({
   // To use only guild command
