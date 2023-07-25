@@ -1,0 +1,37 @@
+{
+	"failedXMLs": [],
+	"failedKMLs": [
+		{
+			"fileName": "114A-1.kml",
+			"e": "HTTPError: Response code 404 (Not Found)"
+		},
+		{
+			"fileName": "307-2.kml",
+			"e": "HTTPError: Response code 404 (Not Found)"
+		},
+		{
+			"fileName": "60T-1.kml",
+			"e": "HTTPError: Response code 403 (Forbidden)"
+		},
+		{
+			"fileName": "812T-1.kml",
+			"e": "HTTPError: Response code 404 (Not Found)"
+		},
+		{
+			"fileName": "83T-1.kml",
+			"e": "HTTPError: Response code 403 (Forbidden)"
+		},
+		{
+			"fileName": "859T-1.kml",
+			"e": "HTTPError: Response code 403 (Forbidden)"
+		},
+		{
+			"fileName": "860T-1.kml",
+			"e": "HTTPError: Response code 403 (Forbidden)"
+		},
+		{
+			"fileName": "911-2.kml",
+			"e": "HTTPError: Response code 404 (Not Found)"
+		}
+	]
+}
