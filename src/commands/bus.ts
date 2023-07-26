@@ -13,6 +13,7 @@ import {
   getStopInfo,
   getBusArrival,
   parseAllServicesCommandEmbed,
+  getRoadInfo,
 } from "../busses/bus.js";
 
 // const sortedStops = fixdata()
@@ -66,4 +67,13 @@ export class BusCommaands {
       ],
     });
   }
+  @Slash({
+    name: 'traffic',
+    description: "get traffic info"
+  })
+  async getTraffic(interaction: CommandInteraction) {
+    await interaction.reply((await getRoadInfo()).value.filter(x => x.Type != 'Roadwork').map((x) => {
+      return `${x.Message}, ${x.Type} at ${x.Latitude},${x.Longitude}`
+    }).join('\n').slice(0, 2000))
+  } 
 }

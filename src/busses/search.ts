@@ -1,4 +1,4 @@
-import {Bus} from "../busses/bus.js";
+import {Bus} from "./bus.js";
 
 export function binarySearchRange(list: Bus.Stops[], prefix: string): [number, number] {
   const lowerBound = lowerBoundSearch(list, prefix);
