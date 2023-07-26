@@ -2,7 +2,7 @@ import * as fs from "fs";
 import stopsDataJSON from "../data/stops.json" assert { type: "json" };
 // import { ButtonStyle } from 'discord.js';
 import stops from "../data/v1/stops.json" assert { type: "json" };
-import { binarySearchRange } from "../utils/search.js";
+import { binarySearchRange } from "./search.js";
 
 // const stopInfos = require('')
 export default class Bus {
@@ -52,10 +52,19 @@ export async function parseAllServicesCommandEmbed(id: string) {
   return new EmbedBuilder().addFields(
     await Promise.all(
       arriv.map((x) => {
-        return { name: x.ServiceNo, value: x.NextBus.EstimatedArrival, inline: true };
+        return {
+          name: x.ServiceNo,
+          value: ((value: number) => {
+            return value >= 0 ? (value /60000).toPrecision(3): "Now";
+          })(
+            new Date(x.NextBus.EstimatedArrival).valueOf()
+              -new Date().valueOf()
+          ).toString(),
+          inline: true,
+        };
       })
     )
-  );
+  ).setFooter({text: 'in minutes'})
 }
 async function reqArrivals(id: string, bus?: string) {
   return (
@@ -67,6 +76,8 @@ async function reqArrivals(id: string, bus?: string) {
         headers: {
           AccountKey: process.env.DATAMALL_API,
           accept: "application/json",
+          "Cache-Control":
+            "no-store, no-cache, max-age=0, must-revalidate, proxy-revalidate",
         },
       }
     )
