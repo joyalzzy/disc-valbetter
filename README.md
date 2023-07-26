@@ -10,3 +10,4 @@ Currently supports
 
 using [techchrism's docs](https://valapidocs.techchrism.me/)  
 [endpoints](https://gist.github.com/Kavan72/b6e0bfdf21d610148f64df878b8a2cc5)
+static bus data from [cheeaun/sgbusdata](https://github.com/cheeaun/sgbusdata)

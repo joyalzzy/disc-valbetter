@@ -16,7 +16,7 @@ export default class Bus {
   // settlign data
 }
 
-export namespace Bus {
+export declare namespace Bus {
   export interface Stops {
     id: string;
     lat: number;
@@ -43,6 +43,7 @@ export namespace Bus {
     Type: string;
   }
 }
+
 export async function getBusArrival(id: string, bus?: string) {
   return (<Bus.Service>await reqArrivals(id, bus)).NextBus;
 }
