@@ -11,8 +11,8 @@ import {
   getAutocompleteSuggestions,
   sortedStops,
   getStopInfo,
-  getArrival,
-  parseAll,
+  getBusArrival,
+  parseAllServicesCommandEmbed,
 } from "../busses/bus.js";
 
 // const sortedStops = fixdata()
@@ -59,14 +59,10 @@ export class BusCommaands {
     interaction: CommandInteraction
   ) {
     let i = stop.split(',') 
-    let stopdat = await parseAll(i[1])
+    let stopdat = await parseAllServicesCommandEmbed(i[1])
     await interaction.reply({
       embeds: [
-        new EmbedBuilder().setTitle(i[0] ?? '')
-        .setFields({
-          name: "stops",
-          value: stopdat ?? ''
-        }),
+        stopdat.setTitle(i[0]) 
       ],
     });
   }
