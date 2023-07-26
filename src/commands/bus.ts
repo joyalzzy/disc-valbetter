@@ -11,6 +11,21 @@ import {
 } from "../busses/bus.js";
 
 // const sortedStops = fixdata()
+const stopAutocompleted = SlashOption({
+  name: "stop",
+  description: "bus stop name",
+  required: false,
+  type: ApplicationCommandOptionType.String,
+  autocomplete: (interaction: AutocompleteInteraction) => {
+    let a = interaction.options.getFocused();
+    let res = getAutocompleteSuggestions(sortedStops, a != "" ? a : "a").splice(
+      0,
+      24
+    );
+    interaction.respond(res);
+  },
+});
+
 @Discord()
 @SlashGroup({
   name: "bus",
@@ -30,17 +45,3 @@ export class BusCommaands {
     await interaction.reply(stop);
   }
 }
-const stopAutocompleted = SlashOption({
-  name: "stop",
-  description: "bus stop name",
-  required: false,
-  type: ApplicationCommandOptionType.String,
-  autocomplete: (interaction: AutocompleteInteraction) => {
-    let a = interaction.options.getFocused();
-    let res = getAutocompleteSuggestions(sortedStops, a != "" ? a : "a").splice(
-      0,
-      24
-    );
-    interaction.respond(res);
-  },
-});

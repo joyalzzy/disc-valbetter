@@ -6,6 +6,7 @@ import { Client } from "discordx";
 import 'dotenv/config';
 import { Session } from "./valorant/session.js";
 
+export const valorant = new Session;
 export const bot = new Client({
   // To use only guild command
   // botGuilds: [(client) => client.guilds.cache.map((guild) => guild.id)],
@@ -28,8 +29,7 @@ export const bot = new Client({
     prefix: ".",
   },
 });
-export const valorant = new Session;
-valorant.run()
+
 
 bot.once("ready", async () => {
   // Make sure all guilds are cached
@@ -99,6 +99,8 @@ async function run() {
     console.log(`discord api server started on ${port}`);
     console.log(`visit localhost:${port}/guilds`);
   });
+
+  await valorant.run()
 
   // ************* rest api section: end **********
 }
