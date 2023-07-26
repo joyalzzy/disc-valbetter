@@ -19,6 +19,6 @@
 
     "strictPropertyInitialization": false
   },
-  "include": ["src/data/*.json"],
+  "include": ["src/data/*.json", "src/**/*.ts"],
   "exclude": ["build", "node_modules", "src/**/*tests.*"]
 }
