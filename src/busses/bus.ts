@@ -4,6 +4,7 @@ import * as fs from "fs";
 import stops from "../data/v1/stops.json" assert { type: "json" };
 import {binarySearchRange} from "../utils/search.js"
 
+const stopInfos = require('')
 export default class Bus {
   /// auto copmlete for disscord
   busalpha: Bus.Stops[];
@@ -58,3 +59,8 @@ export function getAutocompleteSuggestions(sortedList: Bus.Stops[], input: strin
       return {name: a.name, value: a.id}
   });
 }
+/// gets bus stop info
+export function getStopInfo(id : Bus.Stops['id'], ) {
+
+}
+export const sortedStops =   require('../data/good-bus.json');

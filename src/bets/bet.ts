@@ -70,7 +70,8 @@ export class Bets {
     const mid = await valorant.getLastNMatchID(this.puuid);
     return mid !== this.last_mid ? mid : false;
   }
-  public async concludeBets(mid: string): Promise<number> {
+  public async concludeBets(mid: string | Promise<string> = (async () => {return await valorant.getLastNMatchID(this.puuid, 0) })()): Promise<number> {
+    mid = await mid
     clearInterval(this.checktask);
     console.log("ended");
     const match = await valorant.getMatchInfo(mid);
