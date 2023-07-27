@@ -14,6 +14,7 @@ import {
   getBusArrival,
   parseAllServicesCommandEmbed,
   getRoadInfo,
+  getOverviewResponse,
 } from "../busses/bus.js";
 
 // const sortedStops = fixdata()
@@ -76,4 +77,12 @@ export class BusCommaands {
       return `${x.Message}, ${x.Type} at ${x.Latitude},${x.Longitude}`
     }).join('\n').slice(0, 2000))
   } 
+  @Slash({
+    name: 'overview',
+    description: 'get overview of traffic conditions'
+  })
+  async getOverview(interaction: CommandInteraction) {
+    await interaction.deferReply()
+    await interaction.followUp(await getOverviewResponse())
+  }
 }
