@@ -44,35 +44,66 @@ export declare namespace Bus {
   }
   export interface TrafficIncidentsResponse {
     value: {
-      Type: string,
-      Latitude: string,
-      Longitude: string,
-      Message: string
-    }[]
+      Type: string;
+      Latitude: number;
+      Longitude: number;
+      Message: string;
+    }[];
   }
 }
 
 export async function getBusArrival(id: string, bus?: string) {
   return (<Bus.Service>await reqArrivals(id, bus)).NextBus;
 }
+export async function getOverviewResponse() {
+  const road = await getRoadInfo();
+  const map = await getTrafficMap(
+    road.value
+      .filter((x) => x.Type != "Roadwork")
+      .map((x) => {
+        return [x.Longitude, x.Latitude];
+      })
+  );
+  // fs.writeFileSync("assets/img.jpg", map);
+  return {
+    embeds: [
+      new EmbedBuilder()
+        .setTitle("Overview at " + new Date().toTimeString())
+        .addFields({
+          name: "Traffic incidents",
+          value: road.value
+            .filter((x) => x.Type != "Roadwork")
+            .map((x) => {
+              return x.Message.match(" (.*)$")![0] ?? "";
+            })
+            .join("\n")
+            .slice(0, 500),
+        })
+        .setImage("attachment://traffic.jpg"),
+    ],
+    files: [new AttachmentBuilder(map, { name: "traffic.jpg" })],
+  };
+}
 export async function parseAllServicesCommandEmbed(id: string) {
   let arriv: Bus.Service[] = await reqArrivals(id);
-  return new EmbedBuilder().addFields(
-    await Promise.all(
-      arriv.map((x) => {
-        return {
-          name: x.ServiceNo,
-          value: ((value: number) => {
-            return value >= 0 ? (value /60000).toPrecision(3): "Now";
-          })(
-            new Date(x.NextBus.EstimatedArrival).valueOf()
-              -new Date().valueOf()
-          ).toString(),
-          inline: true,
-        };
-      })
+  return new EmbedBuilder()
+    .addFields(
+      await Promise.all(
+        arriv.map((x) => {
+          return {
+            name: x.ServiceNo,
+            value: ((value: number) => {
+              return value >= 0 ? (value / 60000).toPrecision(3) : "Now";
+            })(
+              new Date(x.NextBus.EstimatedArrival).valueOf() -
+                new Date().valueOf()
+            ).toString(),
+            inline: true,
+          };
+        })
+      )
     )
-  ).setFooter({text: 'in minutes'})
+    .setFooter({ text: "in minutes" });
 }
 async function reqArrivals(id: string, bus?: string) {
   return (
@@ -132,16 +163,22 @@ export function getStopInfo(id: string) {
   return stopsDataJSON.features.find((x) => x.id == id)?.properties;
 }
 export async function getRoadInfo() {
-  return <Bus.TrafficIncidentsResponse>(await axios.get('http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents',{
+  return <Bus.TrafficIncidentsResponse>(
+    await axios.get(
+      "http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents",
+      {
         headers: {
           AccountKey: process.env.DATAMALL_API,
           accept: "application/json",
           "Cache-Control":
             "no-store, no-cache, max-age=0, must-revalidate, proxy-revalidate",
         },
-      })).data
+      }
+    )
+  ).data;
 }
 import sortedStopse from "../data/good-bus.json" assert { type: "json" };
 import axios from "axios";
-import { EmbedBuilder } from "discord.js";
+import { Attachment, AttachmentBuilder, EmbedBuilder } from "discord.js";
+import { getTrafficMap } from "../maps/map.js";
 export const sortedStops = sortedStopse;
