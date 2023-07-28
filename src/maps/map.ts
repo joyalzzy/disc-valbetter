@@ -18,8 +18,8 @@ export async function getTrafficMap(
     points.map((row) => row[colIndex])
   );
   let url = `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/static/${points
-    .map((x) => {
-      return `pin-s+555555(${x[0]},${x[1]})`;
+    .map((x, i) => {
+      return `pin-s+FF0000(${x[0]},${x[1]})`;
     })
     .join(",")}/[${Math.min(...transposedArray[0]) - 0.01},${
     Math.min(...transposedArray[1]) - 0.01

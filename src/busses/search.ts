@@ -1,13 +1,14 @@
-import {Bus} from "./bus.js";
+// import {Bus} from "./bus.js";
+import {Stops, } from "../types/lta.js"
 
-export function binarySearchRange(list: Bus.Stops[], prefix: string): [number, number] {
+export function binarySearchRange(list: Stops[], prefix: string): [number, number] {
   const lowerBound = lowerBoundSearch(list, prefix);
   const upperBound = upperBoundSearch(list, prefix);
   return [lowerBound, upperBound - 1];
 }
 
 // Lower bound binary search
-function lowerBoundSearch(list: Bus.Stops[], prefix: string): number {
+function lowerBoundSearch(list: Stops[], prefix: string): number {
   let left = 0;
   let right = list.length;
 
@@ -26,7 +27,7 @@ function lowerBoundSearch(list: Bus.Stops[], prefix: string): number {
 }
 
 // Upper bound binary search
-function upperBoundSearch(list: Bus.Stops[], prefix: string): number {
+function upperBoundSearch(list: Stops[], prefix: string): number {
   let left = 0;
   let right = list.length;
 

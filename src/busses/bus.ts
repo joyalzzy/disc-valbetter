@@ -3,57 +3,19 @@ import stopsDataJSON from "../data/stops.json" assert { type: "json" };
 // import { ButtonStyle } from 'discord.js';
 import stops from "../data/v1/stops.json" assert { type: "json" };
 import { binarySearchRange } from "./search.js";
+import sortedStopse from "../data/good-bus.json" assert { type: "json" };
+import axios from "axios";
+import { AttachmentBuilder, EmbedBuilder } from "discord.js";
+import { getTrafficMap } from "../maps/map.js";
+import { Service, Stops, TrafficIncidentsResponse } from "../types/lta.js";
 
 // const stopInfos = require('')
-export default class Bus {
-  /// auto copmlete for disscord
-  busalpha: Bus.Stops[];
-  constructor() {}
-  getStopAutocomplete() {}
-  getBusAutocomplete() {}
-  /// get Bus list
 
-  // settlign data
-}
 
-export declare namespace Bus {
-  export interface Stops {
-    id: string;
-    lat: number;
-    long: number;
-    name: string;
-    street: string;
-  }
-  export interface Service {
-    ServiceNo: string;
-    Operator: string;
-    NextBus: NextBus;
-    NextBus2: NextBus;
-    NextBus3: NextBus;
-  }
-  export interface NextBus {
-    OriginCode: string;
-    DestinationCode: string;
-    EstimatedArrival: string;
-    Latitude: string;
-    Longitude: string;
-    VisitNumber: string;
-    Load: string;
-    Feature: string;
-    Type: string;
-  }
-  export interface TrafficIncidentsResponse {
-    value: {
-      Type: string;
-      Latitude: number;
-      Longitude: number;
-      Message: string;
-    }[];
-  }
-}
+
 
 export async function getBusArrival(id: string, bus?: string) {
-  return (<Bus.Service>await reqArrivals(id, bus)).NextBus;
+  return (<Service>await reqArrivals(id, bus)).NextBus;
 }
 export async function getOverviewResponse() {
   const road = await getRoadInfo();
@@ -77,7 +39,7 @@ export async function getOverviewResponse() {
               return x.Message.match(" (.*)$")![0] ?? "";
             })
             .join("\n")
-            .slice(0, 500),
+            .slice(0, 1000),
         })
         .setImage("attachment://traffic.jpg"),
     ],
@@ -85,7 +47,7 @@ export async function getOverviewResponse() {
   };
 }
 export async function parseAllServicesCommandEmbed(id: string) {
-  let arriv: Bus.Service[] = await reqArrivals(id);
+  let arriv: Service[] = await reqArrivals(id);
   return new EmbedBuilder()
     .addFields(
       await Promise.all(
@@ -123,7 +85,7 @@ async function reqArrivals(id: string, bus?: string) {
   ).data.Services;
 }
 export function fixdata() {
-  let stoplist: Bus.Stops[] = [];
+  let stoplist: Stops[] = [];
   let s: { [id: string]: [number, number, string, string] } =
     Object.assign(stops);
   Object.keys(s).forEach((id) => {
@@ -146,7 +108,7 @@ export function fixdata() {
   return stoplist;
 }
 export function getAutocompleteSuggestions(
-  sortedList: Bus.Stops[],
+  sortedList: Stops[],
   input: string
 ): any[] {
   const [start, end] = binarySearchRange(sortedList, input.toLowerCase());
@@ -163,7 +125,7 @@ export function getStopInfo(id: string) {
   return stopsDataJSON.features.find((x) => x.id == id)?.properties;
 }
 export async function getRoadInfo() {
-  return <Bus.TrafficIncidentsResponse>(
+  return <TrafficIncidentsResponse>(
     await axios.get(
       "http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents",
       {
@@ -177,8 +139,4 @@ export async function getRoadInfo() {
     )
   ).data;
 }
-import sortedStopse from "../data/good-bus.json" assert { type: "json" };
-import axios from "axios";
-import { Attachment, AttachmentBuilder, EmbedBuilder } from "discord.js";
-import { getTrafficMap } from "../maps/map.js";
 export const sortedStops = sortedStopse;

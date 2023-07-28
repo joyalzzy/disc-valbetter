@@ -1,20 +1,14 @@
 import {
   ApplicationCommandOptionType,
   AutocompleteInteraction,
-  CommandInteraction,
-  Embed,
-  EmbedBuilder,
+  CommandInteraction
 } from "discord.js";
 import { Discord, Slash, SlashGroup, SlashOption } from "discordx";
 import {
-  fixdata,
   getAutocompleteSuggestions,
-  sortedStops,
-  getStopInfo,
-  getBusArrival,
-  parseAllServicesCommandEmbed,
+  sortedStops, parseAllServicesCommandEmbed,
   getRoadInfo,
-  getOverviewResponse,
+  getOverviewResponse
 } from "../busses/bus.js";
 
 // const sortedStops = fixdata()
