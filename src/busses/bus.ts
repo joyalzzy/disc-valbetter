@@ -12,8 +12,6 @@ import { Service, Stops, TrafficIncidentsResponse } from "../types/lta.js";
 // const stopInfos = require('')
 
 
-
-
 export async function getBusArrival(id: string, bus?: string) {
   return (<Service>await reqArrivals(id, bus)).NextBus;
 }
