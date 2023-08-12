@@ -38,6 +38,9 @@ dependencies:
   dotenv:
     specifier: ^16.3.1
     version: 16.3.1
+  fast-xml-parser:
+    specifier: ^4.2.7
+    version: 4.2.7
   file-system-cache:
     specifier: ^2.4.2
     version: 2.4.2
@@ -769,6 +772,13 @@ packages:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
     dev: false
 
+  /fast-xml-parser@4.2.7:
+    resolution: {integrity: sha512-J8r6BriSLO1uj2miOk1NW0YVm8AGOOu3Si2HQp/cSmo6EA4m3fcwu2WKjJ4RK9wMLBtg69y1kS8baDiQBR41Ig==}
+    hasBin: true
+    dependencies:
+      strnum: 1.0.5
+    dev: false
+
   /file-system-cache@2.4.2:
     resolution: {integrity: sha512-33ALMyc8nFwrb7p5+Dl0rmYUY48hHoYvFQhH7zpr08DJ68xR41PONJaYQ5XRj61CFq/hvoj680Ej/P9hoOU4eQ==}
     dependencies:
@@ -1351,6 +1361,10 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       ansi-regex: 6.0.1
+    dev: false
+
+  /strnum@1.0.5:
+    resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
     dev: false
 
   /strtok3@7.0.0:

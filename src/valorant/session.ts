@@ -9,10 +9,12 @@ import {
 import axios, { AxiosHeaders, AxiosResponse } from "axios";
 import { ValCache } from "./cache.js";
 import { EmbedBuilder } from "discord.js";
+import {Vlo} from "valorant-xmp-client"
 
 export class Session {
   protected cache: ValCache;
   protected client: Client;
+  protected xmppClient = new ValorantXmppClient(); 
   async run() {
     this.cache = new ValCache();
     this.client = new Client();

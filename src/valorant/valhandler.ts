@@ -63,7 +63,7 @@ export class Handler {
   }
   async sendGetRequest(url: string, headers?: AxiosHeaders) {
     return await this.ax.get(url, {
-      headers: this.headers.concat(headers),
+      headers: this.headers.concat(headers|| {}),
     })
   }
   async sendPutRequest(url: string, data: {}, headers?: AxiosHeaders) {

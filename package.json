@@ -26,6 +26,7 @@
     "discord.js": "^14.11.0",
     "discordx": "^11.7.6",
     "dotenv": "^16.3.1",
+    "fast-xml-parser": "^4.2.7",
     "file-system-cache": "^2.4.2",
     "koa": "^2.14.2",
     "tough-cookie": "^4.1.3",
