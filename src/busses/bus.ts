@@ -2,60 +2,68 @@ import * as fs from "fs";
 import stopsDataJSON from "../data/stops.json" assert { type: "json" };
 // import { ButtonStyle } from 'discord.js';
 import stops from "../data/v1/stops.json" assert { type: "json" };
-import { binarySearchRange } from "../utils/search.js";
+import { binarySearchRange } from "./search.js";
+import sortedStopse from "../data/good-bus.json" assert { type: "json" };
+import axios from "axios";
+import { AttachmentBuilder, EmbedBuilder } from "discord.js";
+import { getTrafficMap } from "../maps/map.js";
+import { Service, Stops, TrafficIncidentsResponse } from "../types/lta.js";
 
 // const stopInfos = require('')
-export default class Bus {
-  /// auto copmlete for disscord
-  busalpha: Bus.Stops[];
-  constructor() {}
-  getStopAutocomplete() {}
-  getBusAutocomplete() {}
-  /// get Bus list
 
-  // settlign data
-}
-
-export declare namespace Bus {
-  export interface Stops {
-    id: string;
-    lat: number;
-    long: number;
-    name: string;
-    street: string;
-  }
-  export interface Service {
-    ServiceNo: string;
-    Operator: string;
-    NextBus: NextBus;
-    NextBus2: NextBus;
-    NextBus3: NextBus;
-  }
-  export interface NextBus {
-    OriginCode: string;
-    DestinationCode: string;
-    EstimatedArrival: string;
-    Latitude: string;
-    Longitude: string;
-    VisitNumber: string;
-    Load: string;
-    Feature: string;
-    Type: string;
-  }
-}
 
 export async function getBusArrival(id: string, bus?: string) {
-  return (<Bus.Service>await reqArrivals(id, bus)).NextBus;
+  return (<Service>await reqArrivals(id, bus)).NextBus;
+}
+export async function getOverviewResponse() {
+  const road = await getRoadInfo();
+  const map = await getTrafficMap(
+    road.value
+      .filter((x) => x.Type != "Roadwork")
+      .map((x) => {
+        return [x.Longitude, x.Latitude];
+      })
+  );
+  // fs.writeFileSync("assets/img.jpg", map);
+  return {
+    embeds: [
+      new EmbedBuilder()
+        .setTitle("Overview at " + new Date().toTimeString())
+        .addFields({
+          name: "Traffic incidents",
+          value: road.value
+            .filter((x) => x.Type != "Roadwork")
+            .map((x) => {
+              return x.Message.match(" (.*)$")![0] ?? "";
+            })
+            .join("\n")
+            .slice(0, 1000),
+        })
+        .setImage("attachment://traffic.jpg"),
+    ],
+    files: [new AttachmentBuilder(map, { name: "traffic.jpg" })],
+  };
 }
 export async function parseAllServicesCommandEmbed(id: string) {
-  let arriv: Bus.Service[] = await reqArrivals(id);
-  return new EmbedBuilder().addFields(
-    await Promise.all(
-      arriv.map((x) => {
-        return { name: x.ServiceNo, value: x.NextBus.EstimatedArrival, inline: true };
-      })
+  let arriv: Service[] = await reqArrivals(id);
+  return new EmbedBuilder()
+    .addFields(
+      await Promise.all(
+        arriv.map((x) => {
+          return {
+            name: x.ServiceNo,
+            value: ((value: number) => {
+              return value >= 0 ? (value / 60000).toPrecision(3) : "Now";
+            })(
+              new Date(x.NextBus.EstimatedArrival).valueOf() -
+                new Date().valueOf()
+            ).toString(),
+            inline: true,
+          };
+        })
+      )
     )
-  );
+    .setFooter({ text: "in minutes" });
 }
 async function reqArrivals(id: string, bus?: string) {
   return (
@@ -67,13 +75,15 @@ async function reqArrivals(id: string, bus?: string) {
         headers: {
           AccountKey: process.env.DATAMALL_API,
           accept: "application/json",
+          "Cache-Control":
+            "no-store, no-cache, max-age=0, must-revalidate, proxy-revalidate",
         },
       }
     )
   ).data.Services;
 }
 export function fixdata() {
-  let stoplist: Bus.Stops[] = [];
+  let stoplist: Stops[] = [];
   let s: { [id: string]: [number, number, string, string] } =
     Object.assign(stops);
   Object.keys(s).forEach((id) => {
@@ -96,7 +106,7 @@ export function fixdata() {
   return stoplist;
 }
 export function getAutocompleteSuggestions(
-  sortedList: Bus.Stops[],
+  sortedList: Stops[],
   input: string
 ): any[] {
   const [start, end] = binarySearchRange(sortedList, input.toLowerCase());
@@ -112,10 +122,19 @@ export function getAutocompleteSuggestions(
 export function getStopInfo(id: string) {
   return stopsDataJSON.features.find((x) => x.id == id)?.properties;
 }
-import sortedStopse from "../data/good-bus.json" assert { type: "json" };
-import { assert } from "console";
-import { type } from "os";
-import axios from "axios";
-import { NameServiceResponse } from "valorant-api-types";
-import { Embed, EmbedBuilder } from "discord.js";
+export async function getRoadInfo() {
+  return <TrafficIncidentsResponse>(
+    await axios.get(
+      "http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents",
+      {
+        headers: {
+          AccountKey: process.env.DATAMALL_API,
+          accept: "application/json",
+          "Cache-Control":
+            "no-store, no-cache, max-age=0, must-revalidate, proxy-revalidate",
+        },
+      }
+    )
+  ).data;
+}
 export const sortedStops = sortedStopse;

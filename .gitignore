@@ -11,3 +11,4 @@ build
 node_modules
 src/**/_tests.ts
 *.heapprofile
+assets

@@ -19,6 +19,8 @@ RUN npm run build
 
 ## production runner
 FROM node:lts-alpine as prod-runner
+LABEL org.opencontainers.image.source="https://github.com/joyalzzy/wagalorant"
+
 
 # Set work directory
 WORKDIR /app

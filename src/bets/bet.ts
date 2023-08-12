@@ -1,19 +1,12 @@
 import {
-  ApplicationCommandChoicesData,
-  ApplicationCommandOptionChoiceData,
   ApplicationCommandOptionType,
   AutocompleteInteraction,
-  CommandInteraction,
-  ContextMenuCommandAssertions,
-  EmbedBuilder,
-  InteractionCollector,
-  UserManager,
+  CommandInteraction, EmbedBuilder
 } from "discord.js";
 import { bot, valorant } from "../main.js";
 import { randomUUID } from "crypto";
 import { SlashOption } from "discordx";
-import { kill } from "process";
-import { AsciiTable3, AlignmentEnum } from "ascii-table3";
+import { AsciiTable3 } from "ascii-table3";
 
 export class Bets {
   // initiator is discord id
@@ -152,3 +145,5 @@ export namespace Bets {
     type: ApplicationCommandOptionType.String,
   });
 }
+
+export default Bets;

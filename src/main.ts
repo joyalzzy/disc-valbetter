@@ -62,10 +62,10 @@ bot.on("messageCreate", (message: Message) => {
 bot.on("error", (err : Error) => {
   console.log(err)
 })
-process.on("uncaughtException", (err: Error)=> {
-  console.log(`${err.message} ${err.cause}`);
+// process.on("uncaughtException", (err: Error)=> {
+  // console.log(`${err.message} ${err.cause}`);
   // (bot.get('1130439267466874960') as TextChannel).send(`${err.message} ${err.cause}`)
-})
+// })
 
 async function run() {
   // The following syntax should be used in the commonjs environment

@@ -1,18 +1,14 @@
 import {
   ApplicationCommandOptionType,
   AutocompleteInteraction,
-  CommandInteraction,
-  Embed,
-  EmbedBuilder,
+  CommandInteraction
 } from "discord.js";
 import { Discord, Slash, SlashGroup, SlashOption } from "discordx";
 import {
-  fixdata,
   getAutocompleteSuggestions,
-  sortedStops,
-  getStopInfo,
-  getBusArrival,
-  parseAllServicesCommandEmbed,
+  sortedStops, parseAllServicesCommandEmbed,
+  getRoadInfo,
+  getOverviewResponse
 } from "../busses/bus.js";
 
 // const sortedStops = fixdata()
@@ -65,5 +61,22 @@ export class BusCommaands {
         stopdat.setTitle(i[0]) 
       ],
     });
+  }
+  @Slash({
+    name: 'traffic',
+    description: "get traffic info"
+  })
+  async getTraffic(interaction: CommandInteraction) {
+    await interaction.reply((await getRoadInfo()).value.filter(x => x.Type != 'Roadwork').map((x) => {
+      return `${x.Message}, ${x.Type} at ${x.Latitude},${x.Longitude}`
+    }).join('\n').slice(0, 2000))
+  } 
+  @Slash({
+    name: 'overview',
+    description: 'get overview of traffic conditions'
+  })
+  async getOverview(interaction: CommandInteraction) {
+    await interaction.deferReply()
+    await interaction.followUp(await getOverviewResponse())
   }
 }

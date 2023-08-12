@@ -12,7 +12,7 @@ import {
   AutocompleteInteraction,
   CommandInteraction,
 } from "discord.js";
-import { Bets } from "../bets/bet.js";
+import Bets from "../bets/bet.js";
 import { valorant } from "../main.js";
 
 @Discord()
