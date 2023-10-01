@@ -1,4 +1,4 @@
-# Wagalorant
+# Valorant
 ## Description
 Discord Bot to bet on your friends' games 
 Currently supports
